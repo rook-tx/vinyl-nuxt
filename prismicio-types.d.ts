@@ -69,6 +69,78 @@ type ContentRelationshipFieldWithData<
   >;
 }[Exclude<TCustomType[number], string>["id"]];
 
+type ArtistDocumentDataSlicesSlice = never;
+
+/**
+ * Content for Artist documents
+ */
+interface ArtistDocumentData {
+  /**
+   * Name field in *Artist*
+   *
+   * - **Field Type**: Text
+   * - **Placeholder**: *None*
+   * - **API ID Path**: artist.name
+   * - **Tab**: Main
+   * - **Documentation**: https://prismic.io/docs/fields/text
+   */
+  name: prismic.KeyTextField;
+
+  /**
+   * Slice Zone field in *Artist*
+   *
+   * - **Field Type**: Slice Zone
+   * - **Placeholder**: *None*
+   * - **API ID Path**: artist.slices[]
+   * - **Tab**: Main
+   * - **Documentation**: https://prismic.io/docs/slices
+   */
+  slices: prismic.SliceZone<ArtistDocumentDataSlicesSlice>; /**
+   * Meta Title field in *Artist*
+   *
+   * - **Field Type**: Text
+   * - **Placeholder**: A title of the page used for social media and search engines
+   * - **API ID Path**: artist.meta_title
+   * - **Tab**: SEO & Metadata
+   * - **Documentation**: https://prismic.io/docs/fields/text
+   */
+  meta_title: prismic.KeyTextField;
+
+  /**
+   * Meta Description field in *Artist*
+   *
+   * - **Field Type**: Text
+   * - **Placeholder**: A brief summary of the page
+   * - **API ID Path**: artist.meta_description
+   * - **Tab**: SEO & Metadata
+   * - **Documentation**: https://prismic.io/docs/fields/text
+   */
+  meta_description: prismic.KeyTextField;
+
+  /**
+   * Meta Image field in *Artist*
+   *
+   * - **Field Type**: Image
+   * - **Placeholder**: *None*
+   * - **API ID Path**: artist.meta_image
+   * - **Tab**: SEO & Metadata
+   * - **Documentation**: https://prismic.io/docs/fields/image
+   */
+  meta_image: prismic.ImageField<never>;
+}
+
+/**
+ * Artist document from Prismic
+ *
+ * - **API ID**: `artist`
+ * - **Repeatable**: `true`
+ * - **Documentation**: https://prismic.io/docs/content-modeling
+ *
+ * @typeParam Lang - Language API ID of the document.
+ */
+export type ArtistDocument<Lang extends string = string> =
+  prismic.PrismicDocumentWithUID<Simplify<ArtistDocumentData>, "artist", Lang>;
+
 type RecordDocumentDataSlicesSlice = never;
 
 /**
@@ -96,6 +168,19 @@ interface RecordDocumentData {
    * - **Documentation**: https://prismic.io/docs/fields/number
    */
   year: prismic.NumberField;
+
+  /**
+   * Artist field in *Record*
+   *
+   * - **Field Type**: Content Relationship
+   * - **Placeholder**: *None*
+   * - **API ID Path**: record.artist
+   * - **Tab**: Main
+   * - **Documentation**: https://prismic.io/docs/fields/content-relationship
+   */
+  artist: ContentRelationshipFieldWithData<
+    [{ id: "artist"; fields: ["name"] }]
+  >;
 
   /**
    * Slice Zone field in *Record*
@@ -152,7 +237,7 @@ interface RecordDocumentData {
 export type RecordDocument<Lang extends string = string> =
   prismic.PrismicDocumentWithUID<Simplify<RecordDocumentData>, "record", Lang>;
 
-export type AllDocumentTypes = RecordDocument;
+export type AllDocumentTypes = ArtistDocument | RecordDocument;
 
 declare module "@prismicio/client" {
   interface CreateClient {
@@ -175,6 +260,9 @@ declare module "@prismicio/client" {
 
   namespace Content {
     export type {
+      ArtistDocument,
+      ArtistDocumentData,
+      ArtistDocumentDataSlicesSlice,
       RecordDocument,
       RecordDocumentData,
       RecordDocumentDataSlicesSlice,

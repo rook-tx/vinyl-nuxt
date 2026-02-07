@@ -19,11 +19,12 @@
           "placeholder": ""
         }
       },
-      "year": {
-        "type": "Number",
+      "cover": {
+        "type": "Image",
         "config": {
-          "label": "Year",
-          "placeholder": ""
+          "label": "Cover",
+          "constraint": {},
+          "thumbnails": []
         }
       },
       "artist": {
@@ -38,6 +39,50 @@
               "fields": ["name"]
             }
           ]
+        }
+      },
+      "record_id": {
+        "type": "Text",
+        "config": {
+          "label": "Record ID",
+          "placeholder": ""
+        }
+      },
+      "year": {
+        "type": "Number",
+        "config": {
+          "label": "Year",
+          "placeholder": ""
+        }
+      },
+      "original_year": {
+        "type": "Number",
+        "config": {
+          "label": "Original Year",
+          "placeholder": ""
+        }
+      },
+      "label": {
+        "type": "Text",
+        "config": {
+          "label": "Label",
+          "placeholder": ""
+        }
+      },
+      "discs": {
+        "type": "Number",
+        "config": {
+          "label": "Discs",
+          "placeholder": ""
+        }
+      },
+      "notes": {
+        "type": "StructuredText",
+        "config": {
+          "label": "Notes",
+          "placeholder": "",
+          "allowTargetBlank": true,
+          "multi": "paragraph,o-list-item,list-item,hyperlink"
         }
       },
       "slices": {

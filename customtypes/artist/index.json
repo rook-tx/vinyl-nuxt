@@ -19,6 +19,29 @@
           "placeholder": ""
         }
       },
+      "records": {
+        "type": "Group",
+        "config": {
+          "label": "Records",
+          "repeat": true,
+          "fields": {
+            "record": {
+              "type": "Link",
+              "config": {
+                "label": "Record",
+                "select": "document",
+                "repeat": false,
+                "customtypes": [
+                  {
+                    "id": "record",
+                    "fields": ["title", "cover"]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
       "slices": {
         "type": "Slices",
         "fieldset": "Slice Zone",

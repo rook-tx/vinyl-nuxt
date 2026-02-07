@@ -1,0 +1,191 @@
+// ----------
+// Core typography
+// ----------
+
+$p          = 16
+$lh         = 24
+$gt         = 24
+
+$pwidth     = 33
+
+
+// ----------
+// Modular scale
+
+$double-octave    = 4
+$major-twelfth    = 3
+$major-eleventh   = (8/3)
+$major-tenth      = (5/2)
+$octave           = 2
+$major-seventh    = (15/8)
+$minor-seventh    = (16/9)
+$major-sixth      = (5/3)
+$golden           = 1.618034
+$minor-sixth      = (8/5)
+$perfect-fifth    = (3/2)
+$augmented-fourth = math(2, 'sqrt')
+$perfect-fourth   = (4/3)
+$major-third      = (5/4)
+$minor-third      = (6/5)
+$major-second     = (9/8)
+$minor-second     = (16/15)
+
+$mod        = 1.18
+
+
+// ----------
+// Modular scale relative
+// ----------
+
+ms($step, $scale = $mod)
+  $result = $scale
+
+  if $step > 1
+    $step = $step - 1
+
+    for $i in (1..$step)
+      $result = $result * $scale
+
+  else if $step < 0
+    $step = $step + 1
+
+    for $i in (1..$step)
+      $result = $result / $scale
+
+  else if $step == 0
+    $result = 1
+
+  return $result
+
+
+// ----------
+// Modular scale Pixel value
+
+mp($step, $scale = $mod)
+  $result = $scale
+
+  if $step > 1
+    $step = $step - 1
+
+    for $i in (1..$step)
+      $result = $result * $scale
+
+  else if $step < 0
+    $step = $step + 1
+
+    for $i in (1..$step)
+      $result = $result / $scale
+
+  else if $step == 0
+    $result = 1
+
+  return $result * $p
+
+
+// ----------
+// Font-size & line-height
+
+fs($px, $plh = $lh)
+  font-size round(($px / $p)*1rem, 5)
+
+  // if $plh != $lh
+  //   line-height ceil(($plh / $px), 5)
+
+  // else
+  //   $flh = $lh
+
+  //   if $flh / $px < 1.5
+  //     $flh = $lh * 1.5
+
+  //   if $flh / $px < 1.5
+  //     $flh = $lh * 2
+
+  //   if $flh / $px < 1.5
+  //     $flh = $lh * 2.5
+
+  //   if $flh / $px < 1.5
+  //     $flh = $lh * 3
+
+  //   if $flh / $px < 1.5
+  //     $flh = $lh * 3.5
+
+  //   if $flh / $px < 1.5
+  //     $flh = $lh * 4
+
+  //   if $flh / $px < 1.5
+  //     $flh = $lh * 4.5
+
+  //   if $flh / $px < 1.5
+  //     $flh = $lh * 5
+
+  //   line-height ceil(($flh / $px), 5)
+
+
+// ----------
+// Padding & Margin
+
+$let        = $lh / $p
+$gut        = $gt / $p
+
+let($n)
+  return $let * $n * 1rem
+
+gut($n)
+  return $gut * $n * 1rem
+
+mgn($mt, $mr, $mb = $mt, $ml = $mr)
+  if $mt == $mb and $mr == $ml
+    if $mr == auto
+      margin $let * $mt * 1rem auto
+
+    else
+      margin $let * $mt * 1rem $gut * $mr * 1rem
+
+  else if $mt != $mb and $mr == $ml
+    if $mr == auto
+      margin $let * $mt * 1rem auto $let * $mb * 1rem
+
+    else
+      margin $let * $mt * 1rem $gut * $mr * 1rem $let * $mb * 1rem
+
+  else
+    margin $let * $mt * 1rem $gut * $mr * 1rem $let * $mb * 1rem $gut * $ml * 1rem
+
+pad($pt, $pr, $pb = $pt, $pl = $pr)
+  if $pb == $pt and $pr == $pl
+    padding $let * $pt * 1rem $gut * $pr * 1rem
+
+  else if $pb != $pt and $pr == $pl
+    padding $let * $pt * 1rem $gut * $pr * 1rem $let * $pb * 1rem
+
+  else
+    padding $let * $pt * 1rem $gut * $pr * 1rem $let * $pb * 1rem $gut * $pl * 1rem
+
+mgnP($mt, $mr, $mb = $mt, $ml = $mr)
+  if $mt == $mb and $mr == $ml
+    if $mr == auto
+      margin ($mt / $p * 1rem) auto
+
+    else
+      margin ($mt / $p * 1rem) ($mr / $p * 1rem)
+
+  else if $mt != $mb and $mr == $ml
+    if $mr == auto
+      margin ($mt / $p * 1rem) auto ($mb / $p * 1rem)
+
+    else
+      margin ($mt / $p * 1rem) ($mr / $p * 1rem) ($mb / $p * 1rem)
+
+  else
+    margin ($mt / $p * 1rem) ($mr / $p * 1rem) ($mb / $p * 1rem) ($ml / $p * 1rem)
+
+padP($pt, $pr, $pb = $pt, $pl = $pr)
+  if $pb == $pt and $pr == $pl
+    padding ($pt / $p * 1rem) ($pr / $p * 1rem)
+
+  else if $pb != $pt and $pr == $pl
+    padding ($pt / $p * 1rem) ($pr / $p * 1rem) ($pb / $p * 1rem)
+
+  else
+    padding ($pt / $p * 1rem) ($pr / $p * 1rem) ($pb / $p * 1rem) ($pl / $p * 1rem)
+    

@@ -19,10 +19,10 @@ useSeoMeta({
 
 <template>
   <header>
-    <NuxtLink to="/records">Back to Records</NuxtLink>
+    <NuxtLink to="/records">< Records</NuxtLink>
   </header>
-  <main v-if="page">
-    <PrismicImage :field="page.data.cover" width="300"/>
+  <main v-if="page" class="record">
+    <PrismicImage :field="page.data.cover" width="300" />
     <h1>{{ page.data.title }}</h1>
     <NuxtLink
       v-if="$prismic.isFilled.contentRelationship(page.data.artist)"
@@ -38,3 +38,11 @@ useSeoMeta({
     </h3>
   </main>
 </template>
+
+<style lang="stylus">
+@import '../../stylus/_variables.styl'
+
+.record {
+  pad(1, 1)
+}
+</style>

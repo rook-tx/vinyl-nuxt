@@ -1,18 +1,23 @@
 <script setup lang="ts">
 const { client } = usePrismic()
 const { data: pages } = await useAsyncData(`[record-index]`, () =>
-  client.getAllByType('record')
+  client.getAllByType('record', {
+    orderings: {
+      field: 'my.record.title',
+      direction: 'asc',
+    },
+  })
 )
 </script>
 
 <template>
-  <main>
+  <main class="records">
     <h1>Records</h1>
-    <ul>
-      <li v-for="page in pages" :key="page.id">
+    <ul class="list">
+      <li v-for="page in pages">
         <NuxtLink :to="`/records/${page.uid}`">
-          <div>
-            <PrismicImage :field="page.data.cover" width="100" />
+          <div class="list-item">
+            <PrismicImage :field="page.data.cover" width="64" />
             {{ page.data.title }}
           </div>
         </NuxtLink>
@@ -20,3 +25,23 @@ const { data: pages } = await useAsyncData(`[record-index]`, () =>
     </ul>
   </main>
 </template>
+
+<style lang="stylus">
+@import '../../stylus/_variables.styl'
+
+.records {
+  pad(1, 1)
+
+  .list {
+    list-style: none
+    padding: 0
+  }
+
+  .list-item {
+    align-items center
+    display flex
+    gap let(1)
+    pad(0.5, 0)
+  }
+}
+</style>

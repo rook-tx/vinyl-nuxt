@@ -1,0 +1,48 @@
+// ----------
+// Colour
+// ----------
+
+$b          = #000
+$white      = #bfbfdd
+$blue       = #0f0f31
+$purple     = #351b45
+
+// ----------
+// Breakpoints
+// ----------
+
+$mobile     = 600
+$tablet     = 800
+$notebook   = 1024
+$laptop	    = 1300
+$desktop    = 1600
+$ultra	    = 1920
+
+
+// ----------
+// Grid
+// ----------
+
+@import '_type'
+
+$width      = (($pwidth * 2) + ($let * 3)) * $p
+$tablet     = (($pwidth * 1.382) + ($let * 2)) * $p
+$mobile     = (($pwidth * 1) + ($let * 2)) * $p
+
+
+above($size)
+  @media screen and (min-width: ($size + 1) * 1px)
+    {block}
+
+below($size)
+  @media screen and (max-width: ($size) * 1px)
+    {block}
+
+aboveAspect($height, $width)
+  @media screen and (min-height: $height + 1) and (min-width: $width + 1)
+    {block}
+
+belowAspect($height, $width)
+  @media screen and (max-height: $height) and (max-width: $width)
+    {block}
+

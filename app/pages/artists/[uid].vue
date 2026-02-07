@@ -19,9 +19,9 @@ useSeoMeta({
 
 <template>
   <header>
-    <NuxtLink to="/artists">Back to Artists</NuxtLink>
+    <NuxtLink to="/artists">< Artists</NuxtLink>
   </header>
-  <main v-if="page">
+  <main v-if="page" class="artist">
     <h1>{{ page.data.name }}</h1>
     <ul>
       <li v-for="record in page.data.records">
@@ -34,3 +34,12 @@ useSeoMeta({
     </ul>
   </main>
 </template>
+
+<style lang="stylus">
+@import '../../stylus/_variables.styl'
+
+.artist {
+  pad(1, 1)
+}
+
+</style>

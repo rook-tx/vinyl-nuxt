@@ -1,6 +1,20 @@
+<script setup lang="ts">
+const { client } = usePrismic()
+const { data: pages } = await useAsyncData(`[home-index]`, () =>
+  client.getAllByType('record')
+)
+</script>
+
 <template>
-  <div>
-    <NuxtRouteAnnouncer />
-    <NuxtWelcome />
-  </div>
+  <main>
+    <ul>
+      <li v-for="page in pages">
+        <NuxtLink :to="`/records/${page.uid}`">
+          <div>
+            <PrismicImage :field="page.data.cover" width="300" />
+          </div>
+        </NuxtLink>
+      </li>
+    </ul>
+  </main>
 </template>

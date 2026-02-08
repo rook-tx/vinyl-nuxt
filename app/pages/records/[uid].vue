@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { asImageSrc } from '@prismicio/client'
+import { asImageSrc, isFilled } from '@prismicio/client'
 
 const route = useRoute()
 const { client } = usePrismic()
@@ -18,9 +18,6 @@ useSeoMeta({
 </script>
 
 <template>
-  <header>
-    <NuxtLink to="/records">< Records</NuxtLink>
-  </header>
   <main v-if="page" class="record">
     <PrismicImage :field="page.data.cover" width="300" />
     <h1>{{ page.data.title }}</h1>
@@ -30,12 +27,24 @@ useSeoMeta({
     >
       <h2>{{ page.data.artist.data?.name }}</h2>
     </NuxtLink>
-    <h3>
+
+    <h3 class="detail-heading" v-if="page.data.year">Release</h3>
+    <div class="detail" v-if="page.data.year">
       {{ page.data.year }}
-      <span v-if="page.data.original_year"
-        >({{ page.data.original_year }})</span
-      >
+      <span v-if="page.data.original_year">
+        ({{ page.data.original_year }})
+      </span>
+    </div>
+
+    <h3 class="detail-heading" v-if="page.data.label">Label</h3>
+    <div class="detail" v-if="page.data.label">{{ page.data.label }}</div>
+
+    <h3 class="detail-heading" v-if="isFilled.richText(page.data.notes)">
+      Notes
     </h3>
+    <div class="detail" v-if="isFilled.richText(page.data.notes)">
+      <PrismicRichText :field="page.data.notes" />
+    </div>
   </main>
 </template>
 
@@ -43,6 +52,29 @@ useSeoMeta({
 @import '../../stylus/_variables.styl'
 
 .record {
-  pad(1, 1)
+  pad(3, 0, 2, 1)
+
+  .detail-heading {
+    border-bottom 1px solid rgba($white, .1)
+    font-weight normal
+    color rgba($white, .75)
+    fs(mp(-2))
+    letter-spacing .15em
+    text-transform uppercase
+    line-height let(1)
+    max-width 100%
+    mgn(2, 0, .5)
+  }
+
+  .detail {
+    p {
+      mgn(.5, 0)
+    }
+
+    &:last-child {
+      border-bottom 1px solid rgba($white, .1)
+      pad(0, 0, 3)
+    }
+  }
 }
 </style>

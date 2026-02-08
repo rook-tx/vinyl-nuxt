@@ -27,7 +27,7 @@ const { data: pages } = await useAsyncData(`[artist-index]`, () =>
 @import '../../stylus/_variables.styl'
 
 .artists {
-  pad(1, 0, 2, 1)
+  pad(2, 0, 2, 1)
 
   .list-item {
     border-bottom 1px solid rgba($white, 0.1)

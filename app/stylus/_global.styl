@@ -1,9 +1,25 @@
+@import '../stylus/_variables.styl'
+
 // ----------
 // Global
 // ----------
 
-html, body, #__nuxt, .app
-  height 100%
+html, body, nav, main, header, footer, div
+  box-sizing: border-box
+
+html {
+  background $blue
+  color $white
+}
+
+body {
+  font-family: system-ui, sans-serif
+  margin 0
+}
+
+#__nuxt
+  background: linear-gradient(150deg, $blue, $purple, $blue) no-repeat
+  min-height: 100vmax
 
 a
   color inherit
@@ -22,7 +38,8 @@ ul, ol
 button
   appearance none
   background 0
-  border 0 
+  border 0
+  color inherit
   padding 0
   margin 0
   outline 0

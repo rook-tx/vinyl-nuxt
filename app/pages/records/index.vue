@@ -14,9 +14,9 @@ const { data: pages } = await useAsyncData(`[record-index]`, () =>
   <main class="records">
     <h1>Records</h1>
     <ul class="list">
-      <li v-for="page in pages">
-        <NuxtLink :to="`/records/${page.uid}`">
-          <div class="list-item">
+      <li v-for="page in pages" class="list-item">
+        <NuxtLink :to="`/records/${page.uid}`" class="list-link">
+          <div class="list-content">
             <PrismicImage :field="page.data.cover" width="64" />
             {{ page.data.title }}
           </div>
@@ -30,18 +30,21 @@ const { data: pages } = await useAsyncData(`[record-index]`, () =>
 @import '../../stylus/_variables.styl'
 
 .records {
-  pad(1, 1)
-
-  .list {
-    list-style: none
-    padding: 0
-  }
+  pad(2, 0, 2, 1)
 
   .list-item {
-    align-items center
+    border-bottom 1px solid rgba($white, 0.1)
+  }
+
+  .list-link {
+    display block
+    pad(.5, 0)
+  }
+
+  .list-content {
     display flex
-    gap let(1)
-    pad(0.5, 0)
+    align-items center
+    gap gut(1)
   }
 }
 </style>

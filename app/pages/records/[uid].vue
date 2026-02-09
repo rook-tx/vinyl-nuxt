@@ -19,7 +19,12 @@ useSeoMeta({
 
 <template>
   <main v-if="page" class="record">
-    <PrismicImage :field="page.data.cover" width="300" />
+    <PrismicImage
+      :field="page.data.cover"
+      :widths="[300, 600]"
+      width="300"
+      :imgix-params="{ cs: 'srgb' }"
+    />
     <h1>{{ page.data.title }}</h1>
     <NuxtLink
       v-if="$prismic.isFilled.contentRelationship(page.data.artist)"

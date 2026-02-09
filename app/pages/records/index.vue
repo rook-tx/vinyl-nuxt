@@ -17,7 +17,12 @@ const { data: pages } = await useAsyncData(`[record-index]`, () =>
       <li v-for="page in pages" class="list-item">
         <NuxtLink :to="`/records/${page.uid}`" class="list-link">
           <div class="list-content">
-            <PrismicImage :field="page.data.cover" width="64" />
+            <PrismicImage
+              :field="page.data.cover"
+              :widths="[64, 128]"
+              width="64"
+              :imgix-params="{ cs: 'srgb' }"
+            />
             {{ page.data.title }}
           </div>
         </NuxtLink>

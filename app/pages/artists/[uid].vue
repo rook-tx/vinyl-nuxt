@@ -28,7 +28,9 @@ useSeoMeta({
               <PrismicImage
                 v-if="record.record.data?.cover"
                 :field="record.record.data.cover"
+                :widths="[64, 128]"
                 width="64"
+                :imgix-params="{ cs: 'srgb' }"
               />
               {{ record.record.data?.title }}
             </div>

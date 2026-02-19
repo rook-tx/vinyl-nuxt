@@ -48,6 +48,36 @@
           "placeholder": ""
         }
       },
+      "played": {
+        "type": "Group",
+        "config": {
+          "label": "Played",
+          "repeat": true,
+          "fields": {
+            "date": {
+              "type": "Date",
+              "config": {
+                "label": "Date",
+                "placeholder": ""
+              }
+            }
+          }
+        }
+      },
+      "discs": {
+        "type": "Number",
+        "config": {
+          "label": "Discs",
+          "placeholder": ""
+        }
+      },
+      "label": {
+        "type": "Text",
+        "config": {
+          "label": "Label",
+          "placeholder": ""
+        }
+      },
       "year": {
         "type": "Number",
         "config": {
@@ -59,20 +89,6 @@
         "type": "Number",
         "config": {
           "label": "Original Year",
-          "placeholder": ""
-        }
-      },
-      "label": {
-        "type": "Text",
-        "config": {
-          "label": "Label",
-          "placeholder": ""
-        }
-      },
-      "discs": {
-        "type": "Number",
-        "config": {
-          "label": "Discs",
           "placeholder": ""
         }
       },

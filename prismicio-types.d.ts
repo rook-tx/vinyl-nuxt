@@ -169,6 +169,21 @@ interface ArtistDocumentData {
 export type ArtistDocument<Lang extends string = string> =
   prismic.PrismicDocumentWithUID<Simplify<ArtistDocumentData>, 'artist', Lang>
 
+/**
+ * Item in *Record → Played*
+ */
+export interface RecordDocumentDataPlayedItem {
+  /**
+   * Date field in *Record → Played*
+   *
+   * - **Field Type**: Date
+   * - **Placeholder**: *None*
+   * - **API ID Path**: record.played[].date
+   * - **Documentation**: https://prismic.io/docs/fields/date
+   */
+  date: prismic.DateField
+}
+
 type RecordDocumentDataSlicesSlice = never
 
 /**
@@ -220,6 +235,39 @@ interface RecordDocumentData {
   record_id: prismic.KeyTextField
 
   /**
+   * Played field in *Record*
+   *
+   * - **Field Type**: Group
+   * - **Placeholder**: *None*
+   * - **API ID Path**: record.played[]
+   * - **Tab**: Main
+   * - **Documentation**: https://prismic.io/docs/fields/repeatable-group
+   */
+  played: prismic.GroupField<Simplify<RecordDocumentDataPlayedItem>>
+
+  /**
+   * Discs field in *Record*
+   *
+   * - **Field Type**: Number
+   * - **Placeholder**: *None*
+   * - **API ID Path**: record.discs
+   * - **Tab**: Main
+   * - **Documentation**: https://prismic.io/docs/fields/number
+   */
+  discs: prismic.NumberField
+
+  /**
+   * Label field in *Record*
+   *
+   * - **Field Type**: Text
+   * - **Placeholder**: *None*
+   * - **API ID Path**: record.label
+   * - **Tab**: Main
+   * - **Documentation**: https://prismic.io/docs/fields/text
+   */
+  label: prismic.KeyTextField
+
+  /**
    * Year field in *Record*
    *
    * - **Field Type**: Number
@@ -240,28 +288,6 @@ interface RecordDocumentData {
    * - **Documentation**: https://prismic.io/docs/fields/number
    */
   original_year: prismic.NumberField
-
-  /**
-   * Label field in *Record*
-   *
-   * - **Field Type**: Text
-   * - **Placeholder**: *None*
-   * - **API ID Path**: record.label
-   * - **Tab**: Main
-   * - **Documentation**: https://prismic.io/docs/fields/text
-   */
-  label: prismic.KeyTextField
-
-  /**
-   * Discs field in *Record*
-   *
-   * - **Field Type**: Number
-   * - **Placeholder**: *None*
-   * - **API ID Path**: record.discs
-   * - **Tab**: Main
-   * - **Documentation**: https://prismic.io/docs/fields/number
-   */
-  discs: prismic.NumberField
 
   /**
    * Notes field in *Record*
@@ -358,6 +384,7 @@ declare module '@prismicio/client' {
       ArtistDocumentDataSlicesSlice,
       RecordDocument,
       RecordDocumentData,
+      RecordDocumentDataPlayedItem,
       RecordDocumentDataSlicesSlice,
       AllDocumentTypes,
     }

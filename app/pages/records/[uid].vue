@@ -167,7 +167,7 @@ async function addDate() {
     transition color, border-color, background .2s
     line-height let(1)
     pad(.25, .5)
-    mgn(.25, 0)
+    mgn(.5, 0)
 
     &:hover,
     &:focus {

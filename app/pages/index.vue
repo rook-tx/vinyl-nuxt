@@ -6,20 +6,22 @@ const { data: pages } = await useAsyncData(`[home-index]`, () =>
 </script>
 
 <template>
-  <main>
-    <ul>
-      <li v-for="page in pages">
-        <NuxtLink :to="`/records/${page.uid}`">
-          <div>
-            <PrismicImage
-              :field="page.data.cover"
-              :widths="[300, 600]"
-              width="300"
-              :imgix-params="{ cs: 'srgb' }"
-            />
-          </div>
-        </NuxtLink>
-      </li>
-    </ul>
+  <main class="page">
+    <div class="content">
+      <ul>
+        <li v-for="page in pages">
+          <NuxtLink :to="`/records/${page.uid}`">
+            <div>
+              <PrismicImage
+                :field="page.data.cover"
+                :widths="[512, 1024]"
+                width="512"
+                :imgix-params="{ cs: 'srgb' }"
+              />
+            </div>
+          </NuxtLink>
+        </li>
+      </ul>
+    </div>
   </main>
 </template>

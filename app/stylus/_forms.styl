@@ -1,0 +1,71 @@
+@import './_variables.styl'
+
+.form-detail {
+  display flex
+  flex-direction column-reverse
+  mgn(0, 0, 1)
+}
+
+.input {
+  background rgba($white, .01)
+  border 1px solid rgba($white, .4)
+  border-radius 4px
+  font inherit
+  color rgba($white, .75)
+  pad(.25, .5)
+  mgn(.5, 0)
+  outline none
+  transition color, border-color, background .2s
+
+  &::placeholder {
+    color rgba($white, .4)
+  }
+
+  @media (hover: hover) {
+    &:focus-visible,
+    &:hover {
+      background rgba($white, .05)
+      border-color rgba($white, .5)
+      color rgba($white, .8)
+    }
+  }
+}
+
+.label {
+  fs(mp(-2))
+  letter-spacing .1em
+  text-transform uppercase
+}
+
+.button {
+  border 1px solid rgba($white, .4)
+  border-radius 4px
+  font inherit
+  color rgba($white, .75)
+  fs(mp(-2))
+  letter-spacing .1em
+  text-transform uppercase
+  transition color, border-color, background .2s
+  line-height let(1)
+  pad(.25, .5)
+  mgn(.5, 0)
+
+  @media (hover: hover) {
+    &:focus-visible,
+    &:hover {
+      background rgba($white, .1)
+      color rgba($white, .75)
+    }
+  }
+
+  &:active {
+    background rgba($white, .6)
+    color $purple
+  }
+
+  &.checked {
+    border-color rgba($white, .1)
+    background rgba($white, .5)
+    color $purple
+  }
+}

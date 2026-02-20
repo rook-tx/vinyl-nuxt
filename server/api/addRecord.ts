@@ -11,21 +11,30 @@ const migrateClient = createWriteClient('vinyl', {
 })
 
 export default defineEventHandler(async (event) => {
-  if (!event) return
-
   const body = await readBody(event).catch(() => {})
+
+  if (!body.title) {
+    throw new Error('Title is required')
+  }
+
   const migration = createMigration()
 
-  migration.updateDocument({
-    ...body.page,
-    data: {
-      ...body.page.data,
-      played: [
-        ...body.page.data.played,
-        { date: new Date().toISOString().slice(0, 10) },
-      ],
+  migration.createDocument(
+    {
+      lang: 'en-gb',
+      type: 'record',
+      uid: body.title.toLowerCase().replace(/\s+/g, '-'),
+      data: {
+        title: body.title,
+        record_id: body.record_id,
+        year: Number(body.year),
+        original_year: Number(body.original_year),
+        label: body.label,
+        discs: Number(body.discs),
+      },
     },
-  })
+    body.title
+  )
 
   await migrateClient.migrate(migration, {
     reporter(event) {

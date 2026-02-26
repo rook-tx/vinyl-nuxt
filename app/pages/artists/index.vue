@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { client } = usePrismic()
-const { data: pages } = await useAsyncData(`[artist-index]`, () =>
+const { data: artists } = await useAsyncData(`[artist-index]`, () =>
   client.getAllByType('artist', {
     orderings: {
       field: 'my.artist.name',
@@ -13,13 +13,7 @@ const { data: pages } = await useAsyncData(`[artist-index]`, () =>
 <template>
   <main class="artists">
     <h1>Artists</h1>
-    <ul>
-      <li v-for="page in pages" :key="page.id" class="list-item">
-        <NuxtLink :to="`/artists/${page.uid}`" class="list-link">
-          {{ page.data.name }}
-        </NuxtLink>
-      </li>
-    </ul>
+    <ArtistList :artists="artists" v-if="artists" />
   </main>
 </template>
 

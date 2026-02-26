@@ -3,7 +3,13 @@ import { apiEndpoint, repositoryName } from './slicemachine.config.json'
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxt/eslint', '@nuxt/fonts', '@nuxt/image', '@nuxtjs/prismic'],
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/fonts',
+    '@nuxt/image',
+    '@nuxtjs/prismic',
+    'vue3-carousel-nuxt',
+  ],
 
   prismic: {
     endpoint: apiEndpoint || repositoryName,

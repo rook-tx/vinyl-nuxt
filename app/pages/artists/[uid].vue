@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { asImageSrc } from '@prismicio/client'
-
+import { asImageSrc, isFilled } from '@prismicio/client'
+import type { RecordDocument, Simplify } from '~~/prismicio-types'
 const route = useRoute()
 const { client } = usePrismic()
 const { data: page } = await useAsyncData(
@@ -15,29 +15,21 @@ useSeoMeta({
   ogDescription: page.value?.data.meta_description,
   ogImage: computed(() => asImageSrc(page.value?.data.meta_image)),
 })
+
+const filteredRecords: ComputedRef<Simplify<RecordDocument<string>>[]> = computed(() => {
+  if (!page.value) return []
+  return page.value.data.records
+    .filter((record) => isFilled.contentRelationship(record.record))
+    .map((record) => record.record)
+})
+
+console.log('Filtered Records:', filteredRecords.value)
 </script>
 
 <template>
   <main v-if="page" class="artist">
     <h1>{{ page.data.name }}</h1>
-    <ul>
-      <li v-for="record in page.data.records" class="list-item">
-        <div v-if="$prismic.isFilled.contentRelationship(record.record)">
-          <NuxtLink :to="`/records/${record.record.uid}`" class="list-link">
-            <div class="list-content">
-              <PrismicImage
-                v-if="record.record.data?.cover"
-                :field="record.record.data.cover"
-                :widths="[64, 128]"
-                width="64"
-                :imgix-params="{ cs: 'srgb' }"
-              />
-              {{ record.record.data?.title }}
-            </div>
-          </NuxtLink>
-        </div>
-      </li>
-    </ul>
+    <RecordList :records="filteredRecords" v-if="filteredRecords.length > 0" />
   </main>
 </template>
 

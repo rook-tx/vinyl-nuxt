@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { client } = usePrismic()
-const { data: pages } = await useAsyncData(`[record-index]`, () =>
+const { data: records } = await useAsyncData(`[record-index]`, () =>
   client.getAllByType('record', {
     orderings: {
       field: 'my.record.title',
@@ -13,21 +13,7 @@ const { data: pages } = await useAsyncData(`[record-index]`, () =>
 <template>
   <main class="records">
     <h1>Records</h1>
-    <ul class="list">
-      <li v-for="page in pages" class="list-item">
-        <NuxtLink :to="`/records/${page.uid}`" class="list-link">
-          <div class="list-content">
-            <PrismicImage
-              :field="page.data.cover"
-              :widths="[64, 128]"
-              width="64"
-              :imgix-params="{ cs: 'srgb' }"
-            />
-            {{ page.data.title }}
-          </div>
-        </NuxtLink>
-      </li>
-    </ul>
+    <RecordList :records="records" v-if="records" />
   </main>
 </template>
 

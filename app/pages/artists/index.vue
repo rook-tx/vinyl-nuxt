@@ -22,14 +22,5 @@ const { data: artists } = await useAsyncData(`[artist-index]`, () =>
 
 .artists {
   pad(2, 0, 2, 1)
-
-  .list-item {
-    border-bottom 1px solid rgba($white, 0.1)
-  }
-
-  .list-link {
-    display block
-    pad(1, 0)
-  }
 }
 </style>

@@ -1,9 +1,17 @@
 <script setup lang="ts">
-import type { RecordDocument, Simplify } from '~~/prismicio-types'
+import type { RecordDocument } from '~~/prismicio-types'
+
+export type RecordListData = {
+  uid: RecordDocument['uid']
+  data: {
+    title: RecordDocument['data']['title']
+    cover: RecordDocument['data']['cover']
+  }
+}
 
 const props = defineProps({
   records: {
-    type: Array as () => Simplify<RecordDocument<string>>[],
+    type: Array as () => RecordListData[],
     required: true,
   },
 })
@@ -20,7 +28,10 @@ const props = defineProps({
             width="64"
             :imgix-params="{ cs: 'srgb' }"
           />
+
           {{ record.data.title }}
+
+          <LucideChevronRight class="chevron-right" />
         </div>
       </NuxtLink>
     </li>
@@ -38,12 +49,32 @@ const props = defineProps({
   .list-link {
     display block
     pad(.5, 0)
+
+    &:active {
+      .chevron-right {
+        opacity .75
+      }
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        .chevron-right {
+          opacity .5
+        }
+      }
+    }
   }
 
   .list-content {
     display flex
     align-items center
     gap gut(1)
+  }
+
+  .chevron-right {
+    mgn(0, 1, 0)
+    margin-left auto
+    opacity .2
   }
 }
 </style>

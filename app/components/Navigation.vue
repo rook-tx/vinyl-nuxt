@@ -1,9 +1,29 @@
 <template>
   <nav class="nav">
-    <button @click="$router.back()" class="nav-back">&larr;</button>
-    <NuxtLink to="/" class="nav-link">Home</NuxtLink>
-    <NuxtLink to="/records/" class="nav-link">Records</NuxtLink>
-    <NuxtLink to="/artists/" class="nav-link">Artists</NuxtLink>
+    <button @click="$router.back()" class="nav-back">
+      <LucideArrowLeft />
+    </button>
+
+    <NuxtLink to="/" class="nav-link">
+      <div class="icon-label">
+        <LucideHouse />
+        <span>Home</span>
+      </div>
+    </NuxtLink>
+
+    <NuxtLink to="/records/" class="nav-link">
+      <div class="icon-label">
+        <LucideLibrary />
+        <span>Records</span>
+      </div>
+    </NuxtLink>
+
+    <NuxtLink to="/artists/" class="nav-link">
+      <div class="icon-label">
+        <LucideMicVocal />
+        <span>Artists</span>
+      </div>
+    </NuxtLink>
   </nav>
 </template>
 
@@ -12,7 +32,7 @@
 
 .nav
   display flex
-  gap gut(.5)
+  gap gut(1)
   pad(.5, 1)
   position fixed
   width 100%
@@ -25,7 +45,43 @@
 
   .nav-link
     fs(mp(-2))
-    letter-spacing .15em
+    letter-spacing .1em
     text-transform uppercase
     line-height let(1)
+
+    &.router-link-active
+      color $white
+
+      span
+        opacity .9
+
+    +below($width)
+      &.router-link-active
+        .icon-label
+          max-width 8em
+
+    @media (hover: hover)
+      &:hover,
+      &:focus-visible
+        color $white
+
+        span
+          opacity .9
+
+  .icon-label
+    display flex
+    align-items center
+    gap $gut * .5em
+
+    .lucide
+      flex-shrink 0
+      width $let * 1em
+
+    span
+      opacity .75
+
+    +below($width)
+      max-width $let*1em
+      overflow hidden
+      transition max-width .4s ease-in-out
 </style>

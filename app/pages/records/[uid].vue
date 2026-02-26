@@ -48,8 +48,10 @@ async function addDate() {
         <NuxtLink
           v-if="$prismic.isFilled.contentRelationship(page.data.artist)"
           :to="`/artists/${page.data.artist.uid}`"
+          class="artist-link-link"
         >
           {{ page.data.artist.data?.name }}
+          <LucideChevronRight class="chevron-right" />
         </NuxtLink>
       </h2>
 
@@ -112,7 +114,7 @@ async function addDate() {
   }
 
   .record-title {
-    margin-bottom 0
+    mgn(2, 0, 1)
   }
 
   .artist-link {
@@ -125,8 +127,24 @@ async function addDate() {
     max-width none
 
     &:hover,
-    &:focus {
+    &:focus,
+    &:active {
       color $white
+
+      .chevron-right {
+        opacity .75
+      }
+    }
+
+    &-link {
+      align-items center
+      display flex
+    }
+
+    .chevron-right {
+      mgn(0, 1, 0)
+      margin-left auto
+      opacity .2
     }
   }
 

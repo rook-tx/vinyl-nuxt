@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SearchSection from '~/components/SearchSection.vue'
+import RecordCarousel from '~/components/RecordCarousel.vue'
 
 const { client } = usePrismic()
 const { data: records } = await useAsyncData(`[home-index]`, () =>
@@ -10,21 +11,8 @@ const { data: records } = await useAsyncData(`[home-index]`, () =>
 <template>
   <main class="page">
     <div class="content">
-      <SearchSection :records="records ?? []" />
-      <ul>
-        <li v-for="record in records" :key="record.id">
-          <NuxtLink :to="`/records/${record.uid}`">
-            <div>
-              <PrismicImage
-                :field="record.data.cover"
-                :widths="[512, 1024]"
-                width="512"
-                :imgix-params="{ cs: 'srgb' }"
-              />
-            </div>
-          </NuxtLink>
-        </li>
-      </ul>
+      <RecordCarousel :records="records" v-if="records" />
+      <SearchSection :records="records" v-if="records"/>
     </div>
   </main>
 </template>

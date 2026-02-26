@@ -53,14 +53,17 @@ function searchAllData() {
 
 <template>
   <section class="search-section">
-    <div class="search-section__input-wrapper">
+    <div class="input-wrapper">
       <input
+        id="search-section"
         type="text"
         class="input"
         :placeholder="placeholder"
         v-model="searchTerm"
         @input="searchAllData"
       />
+
+      <LucideSearch class="search-icon" />
     </div>
 
     <RecordList :records="filteredRecords" v-if="filteredRecords.length > 0" />
@@ -74,6 +77,28 @@ function searchAllData() {
 .search-section {
   border-bottom 1px solid rgba($white, .5)
   pad(0, 0, 2)
-  mgn(0, 0, 2)
+  mgn(0, -1, 2, 0)
+  min-height 32rem
+
+  .input-wrapper {
+    display flex
+    align-items center
+    gap gut(1)
+    pad(0, 1, 0, 0)
+  }
+
+  .search-icon {
+    flex-shrink 0
+    opacity .5
+  }
+
+  .input {
+    border-radius 8px
+    fs(mp(1))
+    pad(.5, .5)
+    width 15em
+  }
+
+
 }
 </style>

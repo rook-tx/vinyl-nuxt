@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import type { ArtistDocument } from '~~/prismicio-types'
 
+export type ArtistListData = {
+  uid: ArtistDocument['uid']
+  data: {
+    name: ArtistDocument['data']['name']
+  }
+}
+
 const props = defineProps({
   artists: {
-    type: Array as () => ArtistDocument<string>[],
+    type: Array as () => ArtistListData[],
     required: true,
   },
 })
@@ -11,9 +18,10 @@ const props = defineProps({
 
 <template>
   <ol class="artist-list">
-    <li v-for="artist in artists" :key="artist.id" class="list-item">
+    <li v-for="artist in artists" class="list-item">
       <NuxtLink :to="`/artists/${artist.uid}`" class="list-link">
-        {{ artist.data.name }}
+        <span>{{ artist.data.name }}</span>
+        <LucideChevronRight class="chevron-right" />
       </NuxtLink>
     </li>
   </ol>
@@ -28,8 +36,29 @@ const props = defineProps({
   }
 
   .list-link {
-    display block
+    display flex
+    align-items center
     pad(1, 0)
+
+    &:active {
+      .chevron-right {
+        opacity .75
+      }
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        .chevron-right {
+          opacity .5
+        }
+      }
+    }
+  }
+
+  .chevron-right {
+    mgn(0, 1, 0)
+    margin-left auto
+    opacity .2
   }
 }
 </style>

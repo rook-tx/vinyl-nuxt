@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { asImageSrc, isFilled } from '@prismicio/client'
-import type { RecordDocument, Simplify } from '~~/prismicio-types'
+import type { RecordListData } from '~/components/RecordList.vue'
 const route = useRoute()
 const { client } = usePrismic()
 const { data: page } = await useAsyncData(
@@ -16,11 +16,11 @@ useSeoMeta({
   ogImage: computed(() => asImageSrc(page.value?.data.meta_image)),
 })
 
-const filteredRecords: ComputedRef<Simplify<RecordDocument<string>>[]> = computed(() => {
+const filteredRecords = computed(() => {
   if (!page.value) return []
   return page.value.data.records
     .filter((record) => isFilled.contentRelationship(record.record))
-    .map((record) => record.record)
+    .map((record) => record.record as RecordListData)
 })
 
 console.log('Filtered Records:', filteredRecords.value)

@@ -83,5 +83,5 @@
     +below($width)
       max-width $let*1em
       overflow hidden
-      transition max-width .4s ease-in-out
+      transition max-width .35s ease-in-out
 </style>

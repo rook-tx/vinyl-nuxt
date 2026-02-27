@@ -89,16 +89,15 @@ function searchAllData() {
 
   .search-icon {
     flex-shrink 0
-    opacity .5
+    opacity .6
   }
 
   .input {
+    box-sizing border-box
     border-radius 8px
     fs(mp(1))
-    pad(.5, .5)
-    width 15em
+    pad(.5, .75)
+    width 16em
   }
-
-
 }
 </style>

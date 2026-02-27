@@ -58,7 +58,7 @@ const props = defineProps({
   .chevron-right {
     mgn(0, 1, 0)
     margin-left auto
-    opacity .2
+    opacity .15
   }
 }
 </style>

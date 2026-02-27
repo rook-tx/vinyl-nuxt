@@ -29,7 +29,13 @@ const recordList = computed(() => {
 
 <template>
   <section class="record-carousel">
-    <Carousel :items-to-show="1" :wrap-around="true" :gap="14">
+    <Carousel
+      :items-to-show="1"
+      :wrap-around="true"
+      :gap="14"
+      :transition="200"
+      :preventExcessiveDragging="true"
+    >
       <Slide
         v-for="record in recordList"
         :key="record.id"
@@ -74,8 +80,18 @@ const recordList = computed(() => {
     overflow visible
   }
 
+  .carousel__next,
   .carousel__prev {
-    mix-blend-mode: difference
+    background rgba($white, .1)
+    border-radius 4px
+    cursor pointer
+    color $white
+  }
+
+  .lucide {
+    svg {
+      focusable false
+    }
   }
 }
 </style>

@@ -18,7 +18,7 @@ const { data: artists } = await useAsyncData(`[artist-index]`, () =>
 </template>
 
 <style lang="stylus">
-@import '../../stylus/_variables.styl'
+@import '../../stylus/_variables'
 
 .artists {
   pad(2, 0, 2, 1)

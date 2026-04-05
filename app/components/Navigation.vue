@@ -4,7 +4,7 @@
       <LucideArrowLeft />
     </button>
 
-    <NuxtLink to="/" class="nav-link">
+    <NuxtLink to="/" class="nav-link nav-home">
       <div class="icon-label">
         <LucideHouse />
         <span>Home</span>
@@ -24,6 +24,13 @@
         <span>Artists</span>
       </div>
     </NuxtLink>
+
+    <NuxtLink to="/search/" class="nav-link">
+      <div class="icon-label">
+        <LucideSearch />
+        <span>Search</span>
+      </div>
+    </NuxtLink>
   </nav>
 </template>
 
@@ -37,8 +44,10 @@
   position fixed
   width 100%
 
-  .nav-back
+  .nav-home
     margin-right auto
+
+  .nav-back
     fs(mp(2))
     line-height let(1)
     font-weight bold

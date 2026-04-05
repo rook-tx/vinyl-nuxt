@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import RecordCarousel from '~/components/RecordCarousel.vue'
-
+import SearchSection from '~/components/SearchSection.vue'
 const { client } = usePrismic()
+
 const { data: records } = await useAsyncData(`[home-index]`, () =>
   client.getAllByType('record')
 )
@@ -10,7 +10,7 @@ const { data: records } = await useAsyncData(`[home-index]`, () =>
 <template>
   <main class="page">
     <div class="content">
-      <RecordCarousel :records="records" v-if="records" />
+      <SearchSection :records="records" v-if="records" />
     </div>
   </main>
 </template>

@@ -54,15 +54,15 @@ const recordList = computed(() => {
       <template #addons>
         <CarouselNavigation>
           <template #prev>
-            <button class="carousel-nav prev">
-              <LucideChevronLeft />
-            </button>
+            <!-- <button class="carousel-nav prev"> -->
+            <LucideChevronLeft />
+            <!-- </button> -->
           </template>
 
           <template #next>
-            <button class="carousel-nav next">
-              <LucideChevronRight />
-            </button>
+            <!-- <button class="carousel-nav next"> -->
+            <LucideChevronRight />
+            <!-- </button> -->
           </template>
         </CarouselNavigation>
       </template>
@@ -86,6 +86,13 @@ const recordList = computed(() => {
     border-radius 4px
     cursor pointer
     color $white
+  }
+
+  .carousel__slide {
+    img {
+      aspect-ratio 1
+      object-fit cover
+    }
   }
 
   .lucide {

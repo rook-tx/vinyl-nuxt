@@ -36,13 +36,15 @@ async function addDate() {
 <template>
   <main v-if="page" class="page record">
     <div class="content">
-      <PrismicImage
-        class="cover"
-        :field="page.data.cover"
-        :widths="[300, 600]"
-        width="300"
-        :imgix-params="{ cs: 'srgb' }"
-      />
+      <div class="cover-wrapper">
+        <PrismicImage
+          class="cover"
+          :field="page.data.cover"
+          :widths="[300, 600]"
+          width="300"
+          :imgix-params="{ cs: 'srgb' }"
+        />
+      </div>
       <h1 class="record-title">{{ page.data.title }}</h1>
       <h2 class="artist-link">
         <NuxtLink
@@ -108,8 +110,11 @@ async function addDate() {
 @import '../../stylus/_variables.styl'
 
 .record {
+  .cover-wrapper {
+    mgn(0, -1)
+  }
+
   .cover {
-    max-width $pwidth * 1rem
     width 100%
   }
 

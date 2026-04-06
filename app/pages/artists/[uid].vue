@@ -22,8 +22,6 @@ const filteredRecords = computed(() => {
     .filter((record) => isFilled.contentRelationship(record.record))
     .map((record) => record.record as RecordListData)
 })
-
-console.log('Filtered Records:', filteredRecords.value)
 </script>
 
 <template>

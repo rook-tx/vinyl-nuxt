@@ -8,9 +8,16 @@ const { data: records } = await useAsyncData(`[home-index]`, () =>
 </script>
 
 <template>
-  <main class="page">
+  <main class="page home">
     <div class="content">
       <RecordCarousel :records="records" v-if="records" />
     </div>
   </main>
 </template>
+
+<style lang="stylus">
+@import '../stylus/_variables.styl'
+
+.home {
+}
+</style>

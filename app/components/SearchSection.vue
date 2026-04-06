@@ -6,7 +6,7 @@ import ArtistList from './ArtistList.vue'
 const props = defineProps({
   placeholder: {
     type: String,
-    default: 'Search by record title…',
+    default: 'Search by record title, artist name…',
   },
   records: {
     type: Array as () => RecordDocument<string>[],
@@ -77,7 +77,6 @@ function searchAllData() {
 @import '../stylus/_variables'
 
 .search-section {
-  border-bottom 1px solid rgba($white, .5)
   pad(0, 0, 2)
   mgn(0, -1, 2, 0)
   min-height 32rem

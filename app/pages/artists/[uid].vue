@@ -25,9 +25,17 @@ const filteredRecords = computed(() => {
 </script>
 
 <template>
-  <main v-if="page" class="artist">
-    <h1>{{ page.data.name }}</h1>
-    <RecordList :records="filteredRecords" v-if="filteredRecords.length > 0" />
+  <main v-if="page" class="artist page">
+    <div class="content">
+      <div class="title-badge">
+        <LucideMicVocal />
+        <h1>{{ page.data.name }}</h1>
+      </div>
+      <RecordList
+        :records="filteredRecords"
+        v-if="filteredRecords.length > 0"
+      />
+    </div>
   </main>
 </template>
 
@@ -35,7 +43,9 @@ const filteredRecords = computed(() => {
 @import '../../stylus/_variables.styl'
 
 .artist {
-  pad(2, 0, 2, 1)
+  .content {
+    padding-right 0
+  }
 
   .list-item {
     border-bottom 1px solid rgba($white, 0.1)

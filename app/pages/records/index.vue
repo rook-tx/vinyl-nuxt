@@ -11,9 +11,14 @@ const { data: records } = await useAsyncData(`[record-index]`, () =>
 </script>
 
 <template>
-  <main class="records">
-    <h1>Records</h1>
-    <RecordList :records="records" v-if="records" />
+  <main class="page records">
+    <div class="content">
+      <div class="title-badge">
+        <LucideLibrary />
+        <h1>Records</h1>
+      </div>
+      <RecordList :records="records" v-if="records" />
+    </div>
   </main>
 </template>
 
@@ -21,7 +26,9 @@ const { data: records } = await useAsyncData(`[record-index]`, () =>
 @import '../../stylus/_variables.styl'
 
 .records {
-  pad(2, 0, 2, 1)
+  .content {
+    padding-right 0
+  }
 
   .list-item {
     border-bottom 1px solid rgba($white, 0.1)

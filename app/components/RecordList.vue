@@ -23,9 +23,11 @@ const props = defineProps({
       <NuxtLink :to="`/records/${record.uid}`" class="list-link">
         <div class="list-content">
           <PrismicImage
+            class="list-cover"
             :field="record.data.cover"
             :widths="[64, 128]"
             width="64"
+            height="64"
             :imgix-params="{ cs: 'srgb' }"
           />
 
@@ -69,6 +71,12 @@ const props = defineProps({
     display flex
     align-items center
     gap gut(1)
+  }
+
+  .list-cover {
+    aspect-ratio 1 / 1
+    flex-shrink 0
+    object-fit cover
   }
 
   .chevron-right {

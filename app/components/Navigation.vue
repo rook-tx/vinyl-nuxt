@@ -48,6 +48,7 @@
     margin-right auto
 
   .nav-back
+    opacity .75
     fs(mp(2))
     line-height let(1)
     font-weight bold
@@ -58,8 +59,14 @@
     text-transform uppercase
     line-height let(1)
 
+    svg
+      opacity .75
+
     &.router-link-active
       color $white
+
+      svg
+        opacity .95
 
       span
         opacity .9
@@ -74,8 +81,11 @@
       &:focus-visible
         color $white
 
+        svg
+          opacity .95
+
         span
-          opacity .9
+          opacity .8
 
   .icon-label
     display flex

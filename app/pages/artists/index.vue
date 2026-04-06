@@ -11,9 +11,14 @@ const { data: artists } = await useAsyncData(`[artist-index]`, () =>
 </script>
 
 <template>
-  <main class="artists">
-    <h1>Artists</h1>
-    <ArtistList :artists="artists" v-if="artists" />
+  <main class="page artists">
+    <div class="content">
+      <div class="title-badge">
+        <LucideMicVocal />
+        <h1>Artists</h1>
+      </div>
+      <ArtistList :artists="artists" v-if="artists" />
+    </div>
   </main>
 </template>
 
@@ -21,6 +26,8 @@ const { data: artists } = await useAsyncData(`[artist-index]`, () =>
 @import '../../stylus/_variables'
 
 .artists {
-  pad(2, 0, 2, 1)
+  .content {
+    padding-right 0
+  }
 }
 </style>

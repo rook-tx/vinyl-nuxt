@@ -6,7 +6,7 @@ import ArtistList from './ArtistList.vue'
 const props = defineProps({
   placeholder: {
     type: String,
-    default: 'Search by record title, artist name…',
+    default: 'Search by record title, artist…',
   },
   records: {
     type: Array as () => RecordDocument<string>[],

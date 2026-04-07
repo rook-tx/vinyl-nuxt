@@ -14,8 +14,11 @@ const { data: artists } = await useAsyncData(`[artist-index]`, () =>
   <main class="page artists">
     <div class="content">
       <div class="title-badge">
-        <LucideMicVocal />
         <h1>Artists</h1>
+        <div class="title-count">
+          <LucideMicVocal />
+          <span>{{ artists?.length }}</span>
+        </div>
       </div>
       <ArtistList :artists="artists" v-if="artists" />
     </div>
@@ -28,6 +31,19 @@ const { data: artists } = await useAsyncData(`[artist-index]`, () =>
 .artists {
   .content {
     padding-right 0
+  }
+
+  .title-badge {
+    display flex
+    align-items bottom 
+    justify-content space-between
+    gap gut(1)
+  }
+
+  .title-count {
+    display flex
+    align-items center
+    gap gut(.5)
   }
 }
 </style>

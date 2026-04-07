@@ -14,8 +14,11 @@ const { data: records } = await useAsyncData(`[record-index]`, () =>
   <main class="page records">
     <div class="content">
       <div class="title-badge">
-        <LucideLibrary />
         <h1>Records</h1>
+        <div class="title-count">
+          <LucideLibrary />
+          <span>{{ records?.length }}</span>
+        </div>
       </div>
       <RecordList :records="records" v-if="records" />
     </div>
@@ -43,6 +46,19 @@ const { data: records } = await useAsyncData(`[record-index]`, () =>
     display flex
     align-items center
     gap gut(1)
+  }
+  
+  .title-badge {
+    display flex
+    align-items bottom 
+    justify-content space-between
+    gap gut(1)
+  }
+  
+  .title-count {
+    display flex
+    align-items center
+    gap gut(.5)
   }
 }
 </style>

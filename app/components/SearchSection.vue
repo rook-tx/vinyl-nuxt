@@ -79,11 +79,11 @@ function searchAllData() {
 .search-section {
   pad(0, 0, 2)
   mgn(0, -1, 2, 0)
-  min-height 32rem
 
   .input-wrapper {
     display flex
     align-items center
+    justify-content space-between
     gap gut(1)
     pad(0, 1, 0, 0)
   }
@@ -96,9 +96,9 @@ function searchAllData() {
   .input {
     box-sizing border-box
     border-radius 8px
+    flex 1
     fs(mp(1))
     pad(.5, .75)
-    width 16em
   }
 }
 </style>

@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import 'vue3-carousel/carousel.css'
-import {
-  Carousel,
-  Slide,
-  Navigation as CarouselNavigation,
-} from 'vue3-carousel'
+import { useKeenSlider } from 'keen-slider/vue.es'
+import 'keen-slider/keen-slider.min.css'
 
 import type { RecordDocument } from '~~/prismicio-types'
 
@@ -25,48 +21,46 @@ const randomizeRecords = (records: RecordDocument<string>[]) => {
 const recordList = computed(() => {
   return randomizeRecords(props.records)
 })
+
+const [container] = useKeenSlider({
+  loop: {
+    min: -50,
+    max: 50,
+  },
+})
 </script>
 
 <template>
   <section class="record-carousel">
-    <Carousel
-      :items-to-show="1"
-      :wrap-around="true"
-      :gap="14"
-      :transition="200"
-      :preventExcessiveDragging="true"
-    >
-      <Slide
+    <div ref="container" class="keen-slider">
+      <div
         v-for="record in recordList"
         :key="record.id"
-        class="carousel-item"
+        class="carousel-item keen-slider__slide"
       >
         <NuxtLink :to="`/records/${record.uid}`">
           <PrismicImage
             :field="record.data.cover"
             :widths="[512, 1024]"
             width="512"
+            height="512"
             :imgix-params="{ cs: 'srgb' }"
           />
         </NuxtLink>
-      </Slide>
+      </div>
+    </div>
 
-      <template #addons>
+    <!-- <template #addons>
         <CarouselNavigation>
           <template #prev>
-            <!-- <button class="carousel-nav prev"> -->
             <LucideChevronLeft />
-            <!-- </button> -->
           </template>
 
           <template #next>
-            <!-- <button class="carousel-nav next"> -->
             <LucideChevronRight />
-            <!-- </button> -->
           </template>
         </CarouselNavigation>
-      </template>
-    </Carousel>
+      </template> -->
   </section>
 </template>
 
@@ -74,10 +68,15 @@ const recordList = computed(() => {
 @import "../stylus/_variables"
 
 .record-carousel {
-  mgn(1, 0, 2)
-
   .carousel__viewport {
     overflow visible
+  }
+
+  .carousel__item {
+    img {
+      aspect-ratio 1
+      object-fit cover
+    }
   }
 
   .carousel__next,

@@ -166,7 +166,7 @@ async function addDate() {
   .detail-heading {
     border-bottom 1px solid rgba($white, .1)
     font-weight normal
-    color rgba($white, .75)
+    color rgba($white, .5)
     fs(mp(-2))
     letter-spacing .15em
     text-transform uppercase
@@ -183,7 +183,7 @@ async function addDate() {
 
   .closer {
     border-width 0
-    border-bottom 1px solid rgba($white, .2)
+    border-bottom 1px solid rgba($white, .18)
     pad(0, 0, 3)
   }
 }

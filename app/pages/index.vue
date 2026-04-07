@@ -19,5 +19,8 @@ const { data: records } = await useAsyncData(`[home-index]`, () =>
 @import '../stylus/_variables.styl'
 
 .home {
+  .content {
+    padding-inline 0
+  }
 }
 </style>

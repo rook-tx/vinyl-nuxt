@@ -8,7 +8,6 @@ export default defineNuxtConfig({
     '@nuxt/fonts',
     '@nuxt/image',
     '@nuxtjs/prismic',
-    'vue3-carousel-nuxt',
     'nuxt-lucide-icons',
   ],
 

@@ -53,6 +53,7 @@ const { data: records } = await useAsyncData(`[record-index]`, () =>
     align-items bottom 
     justify-content space-between
     gap gut(1)
+    padding-right gut(1)
   }
   
   .title-count {

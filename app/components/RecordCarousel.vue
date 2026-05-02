@@ -12,22 +12,24 @@ const props = defineProps({
 })
 
 const randomizeRecords = (records: RecordDocument<string>[]) => {
-  return records
-    .map((record) => ({ record, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ record }) => record)
+  return records.sort(() => Math.random() - Math.random())
 }
 
 const recordList = computed(() => {
   return randomizeRecords(props.records)
 })
 
-const [container] = useKeenSlider({
-  loop: {
-    min: -50,
-    max: 50,
-  },
+const [container, slider] = useKeenSlider({
+  loop: true,
 })
+
+function goPrev() {
+  slider.value?.prev()
+}
+
+function goNext() {
+  slider.value?.next()
+}
 </script>
 
 <template>
@@ -50,17 +52,15 @@ const [container] = useKeenSlider({
       </div>
     </div>
 
-    <!-- <template #addons>
-        <CarouselNavigation>
-          <template #prev>
-            <LucideChevronLeft />
-          </template>
+    <div class="carousel-navigation">
+      <button class="carousel-prev" @click="goPrev" role="button">
+        <LucideChevronLeft />
+      </button>
 
-          <template #next>
-            <LucideChevronRight />
-          </template>
-        </CarouselNavigation>
-      </template> -->
+      <button class="carousel-next" @click="goNext" role="button">
+        <LucideChevronRight />
+      </button>
+    </div>
   </section>
 </template>
 
@@ -68,35 +68,35 @@ const [container] = useKeenSlider({
 @import "../stylus/_variables"
 
 .record-carousel {
-  .carousel__viewport {
+  .carousel-viewport {
     overflow visible
   }
 
-  .carousel__item {
+  .carousel-item {
     img {
       aspect-ratio 1
       object-fit cover
+      width 100%
     }
   }
 
-  .carousel__next,
-  .carousel__prev {
+  .carousel-navigation {
+    display flex
+    justify-content space-between
+    gap gut(1)
+    margin-top gut(.5)
+  }
+
+  .carousel-next,
+  .carousel-prev {
     background rgba($white, .1)
     border-radius 4px
     cursor pointer
     color $white
-  }
+    pad(.5, .5)
 
-  .carousel__slide {
-    img {
-      aspect-ratio 1
-      object-fit cover
-    }
-  }
-
-  .lucide {
-    svg {
-      focusable false
+    &:active {
+      background rgba($white, .2)
     }
   }
 }

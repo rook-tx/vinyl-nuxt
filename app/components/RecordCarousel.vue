@@ -84,7 +84,7 @@ function goNext() {
     display flex
     justify-content space-between
     gap gut(1)
-    margin-top gut(.5)
+    mgn(.5, .5)
   }
 
   .carousel-next,

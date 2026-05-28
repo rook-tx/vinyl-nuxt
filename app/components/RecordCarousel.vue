@@ -2,6 +2,8 @@
 import { useKeenSlider } from 'keen-slider/vue.es'
 import 'keen-slider/keen-slider.min.css'
 
+import { shuffleArray } from '~/utils/records'
+
 import type { RecordDocument } from '~~/prismicio-types'
 
 const props = defineProps({
@@ -11,16 +13,28 @@ const props = defineProps({
   },
 })
 
-const randomizeRecords = (records: RecordDocument<string>[]) => {
-  return records.sort(() => Math.random() - Math.random())
-}
-
-const recordList = computed(() => {
-  return randomizeRecords(props.records)
-})
+const recordList = ref<RecordDocument<string>[]>([...props.records])
 
 const [container, slider] = useKeenSlider({
   loop: true,
+})
+
+const updateRecordList = (records: RecordDocument<string>[]) => {
+  recordList.value = shuffleArray(records)
+  nextTick(() => {
+    slider.value?.update()
+  })
+}
+
+onMounted(() => {
+  updateRecordList(props.records)
+
+  watch(
+    () => props.records,
+    (records) => {
+      updateRecordList(records)
+    }
+  )
 })
 
 function goPrev() {

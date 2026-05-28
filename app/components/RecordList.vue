@@ -19,7 +19,7 @@ const props = defineProps({
 
 <template>
   <ol class="record-list">
-    <li v-for="record in records" class="list-item">
+    <li v-for="record in records" :key="record.uid" class="list-item">
       <NuxtLink :to="`/records/${record.uid}`" class="list-link">
         <div class="list-content">
           <PrismicImage
@@ -83,6 +83,12 @@ const props = defineProps({
     mgn(0, 1, 0)
     margin-left auto
     opacity .15
+  }
+
+  .list-date {
+    color rgba($white, 0.75)
+    font-size .875rem
+    margin-left auto
   }
 }
 </style>

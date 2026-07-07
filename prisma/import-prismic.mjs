@@ -9,7 +9,7 @@ const accessToken =
   process.env.PRISMIC_ACCESS_TOKEN || process.env.PRISMIC_WRITE_TOKEN
 const apiBase = `https://${repository}.cdn.prismic.io/api/v2`
 const dryRun = process.argv.includes('--dry-run')
-const strictRelationships = process.argv.includes('--strict-relationships')
+const allowOverwrite = process.argv.includes('--allow-overwrite')
 const reportPathArg = process.argv.find((arg) => arg.startsWith('--report='))
 const reportPath = reportPathArg
   ? reportPathArg.slice('--report='.length)
@@ -92,57 +92,6 @@ async function getAllDocumentsByType(type, ref) {
   return documents
 }
 
-function buildArtistRecordLinkIndex(artists) {
-  const byRecordPrismicId = new Map()
-  const byRecordUid = new Map()
-
-  for (const artistDoc of artists) {
-    const artistPrismicId = artistDoc.id
-    const items = Array.isArray(artistDoc.data?.records)
-      ? artistDoc.data.records
-      : []
-
-    for (const item of items) {
-      const recordRef = item?.record
-      if (!recordRef) continue
-
-      if (recordRef.id) {
-        const current = byRecordPrismicId.get(recordRef.id) || new Set()
-        current.add(artistPrismicId)
-        byRecordPrismicId.set(recordRef.id, current)
-      }
-
-      if (recordRef.uid) {
-        const current = byRecordUid.get(recordRef.uid) || new Set()
-        current.add(artistPrismicId)
-        byRecordUid.set(recordRef.uid, current)
-      }
-    }
-  }
-
-  const conflicts = []
-
-  for (const [recordPrismicId, artistIds] of byRecordPrismicId.entries()) {
-    if (artistIds.size > 1) {
-      conflicts.push({
-        recordPrismicId,
-        artists: [...artistIds],
-      })
-    }
-  }
-
-  for (const [recordUid, artistIds] of byRecordUid.entries()) {
-    if (artistIds.size > 1) {
-      conflicts.push({
-        recordUid,
-        artists: [...artistIds],
-      })
-    }
-  }
-
-  return { byRecordPrismicId, byRecordUid, conflicts }
-}
-
 async function importArtists(artists) {
   const artistMapByPrismicUid = new Map()
   const artistMapByPrismicId = new Map()
@@ -192,84 +141,32 @@ async function importArtists(artists) {
   return { artistMapByPrismicUid, artistMapByPrismicId, importedCount, skipped }
 }
 
-function resolveArtistIdsForRecord(recordDoc, artistMaps, artistLinkIndex) {
+function resolveArtistIdsForRecord(recordDoc, artistMaps) {
   const directArtistRef = recordDoc.data?.artist
-  const artistIds = new Set()
-  const sourcesUsed = new Set()
+  if (!directArtistRef) return []
 
   if (
     directArtistRef?.id &&
     artistMaps.artistMapByPrismicId.has(directArtistRef.id)
   ) {
-    artistIds.add(artistMaps.artistMapByPrismicId.get(directArtistRef.id))
-    sourcesUsed.add('record.artist.id')
-    return {
-      artistIds: [...artistIds],
-      sourcesUsed: [...sourcesUsed],
-    }
+    return [artistMaps.artistMapByPrismicId.get(directArtistRef.id)]
   }
 
   if (
     directArtistRef?.uid &&
     artistMaps.artistMapByPrismicUid.has(directArtistRef.uid)
   ) {
-    artistIds.add(artistMaps.artistMapByPrismicUid.get(directArtistRef.uid))
-    sourcesUsed.add('record.artist.uid')
-    return {
-      artistIds: [...artistIds],
-      sourcesUsed: [...sourcesUsed],
-    }
+    return [artistMaps.artistMapByPrismicUid.get(directArtistRef.uid)]
   }
 
-  if (artistLinkIndex.byRecordPrismicId.has(recordDoc.id)) {
-    const artistPrismicIds = artistLinkIndex.byRecordPrismicId.get(recordDoc.id)
-    for (const artistPrismicId of artistPrismicIds) {
-      const artistId = artistMaps.artistMapByPrismicId.get(artistPrismicId)
-      if (artistId) artistIds.add(artistId)
-    }
-    if (artistIds.size > 0) {
-      sourcesUsed.add('artist.records.id')
-      return {
-        artistIds: [...artistIds],
-        sourcesUsed: [...sourcesUsed],
-      }
-    }
-  }
-
-  if (recordDoc.uid && artistLinkIndex.byRecordUid.has(recordDoc.uid)) {
-    const artistPrismicIds = artistLinkIndex.byRecordUid.get(recordDoc.uid)
-    for (const artistPrismicId of artistPrismicIds) {
-      const artistId = artistMaps.artistMapByPrismicId.get(artistPrismicId)
-      if (artistId) artistIds.add(artistId)
-    }
-    if (artistIds.size > 0) {
-      sourcesUsed.add('artist.records.uid')
-      return {
-        artistIds: [...artistIds],
-        sourcesUsed: [...sourcesUsed],
-      }
-    }
-  }
-
-  sourcesUsed.add('none')
-
-  return {
-    artistIds: [...artistIds],
-    sourcesUsed: [...sourcesUsed],
-  }
+  return []
 }
 
-async function importRecords(records, artistMaps, artistLinkIndex) {
+async function importRecords(records, artistMaps) {
   let importedCount = 0
   const skipped = []
   let playedDatesWritten = 0
-  const linkedBy = {
-    'record.artist.id': 0,
-    'record.artist.uid': 0,
-    'artist.records.id': 0,
-    'artist.records.uid': 0,
-    none: 0,
-  }
+  let linkedRecords = 0
 
   for (const recordDoc of records) {
     const uid = recordDoc.uid || slugify(recordDoc.data?.title || recordDoc.id)
@@ -282,14 +179,8 @@ async function importRecords(records, artistMaps, artistLinkIndex) {
       continue
     }
 
-    const resolvedArtist = resolveArtistIdsForRecord(
-      recordDoc,
-      artistMaps,
-      artistLinkIndex
-    )
-    for (const source of resolvedArtist.sourcesUsed) {
-      linkedBy[source] += 1
-    }
+    const artistIds = resolveArtistIdsForRecord(recordDoc, artistMaps)
+    if (artistIds.length > 0) linkedRecords += 1
 
     const playedDates = Array.isArray(recordDoc.data?.played)
       ? recordDoc.data.played
@@ -349,9 +240,9 @@ async function importRecords(records, artistMaps, artistLinkIndex) {
     })
 
     await prisma.recordArtist.deleteMany({ where: { recordId: record.id } })
-    if (resolvedArtist.artistIds.length > 0) {
+    if (artistIds.length > 0) {
       await prisma.recordArtist.createMany({
-        data: resolvedArtist.artistIds.map((artistId) => ({
+        data: artistIds.map((artistId) => ({
           recordId: record.id,
           artistId,
         })),
@@ -374,7 +265,7 @@ async function importRecords(records, artistMaps, artistLinkIndex) {
     importedCount += 1
   }
 
-  return { importedCount, skipped, playedDatesWritten, linkedBy }
+  return { importedCount, skipped, playedDatesWritten, linkedRecords }
 }
 
 async function writeReport(report) {
@@ -386,8 +277,21 @@ async function writeReport(report) {
 
 async function main() {
   console.log(
-    `Importing from Prismic repository: ${repository}${dryRun ? ' (dry run)' : ''}${strictRelationships ? ' [strict relationships]' : ''}`
+    `Importing from Prismic repository: ${repository}${dryRun ? ' (dry run)' : ''}`
   )
+
+  if (!dryRun && !allowOverwrite) {
+    const [existingArtists, existingRecords] = await Promise.all([
+      prisma.artist.count(),
+      prisma.record.count(),
+    ])
+
+    if (existingArtists > 0 || existingRecords > 0) {
+      throw new Error(
+        'Import aborted: database is not empty. Use --allow-overwrite to run intentionally.'
+      )
+    }
+  }
 
   const masterRef = await getMasterRef()
   const [artists, records] = await Promise.all([
@@ -395,54 +299,17 @@ async function main() {
     getAllDocumentsByType('record', masterRef),
   ])
 
-  const artistLinkIndex = buildArtistRecordLinkIndex(artists)
-
-  if (strictRelationships && artistLinkIndex.conflicts.length > 0) {
-    const conflictReport = {
-      repository,
-      dryRun,
-      strictRelationships,
-      generatedAt: new Date().toISOString(),
-      fetched: {
-        artists: artists.length,
-        records: records.length,
-      },
-      imported: {
-        artists: 0,
-        records: 0,
-        playedDates: 0,
-      },
-      relationships: {
-        linkedBy: null,
-        artistRecordConflicts: artistLinkIndex.conflicts,
-      },
-      skipped: {
-        artists: [],
-        records: [],
-      },
-    }
-
-    const writtenPath = await writeReport(conflictReport)
-    console.error(`Relationship conflict report written to ${writtenPath}`)
-
-    const conflictError = new Error(
-      `Found ${artistLinkIndex.conflicts.length} artist-record relationship conflicts in Prismic`
-    )
-    conflictError.name = 'RelationshipConflictError'
-    throw conflictError
-  }
-
   console.log(
     `Fetched ${artists.length} artist documents and ${records.length} record documents`
   )
 
   const artistMaps = await importArtists(artists)
-  const recordResult = await importRecords(records, artistMaps, artistLinkIndex)
+  const recordResult = await importRecords(records, artistMaps)
 
   const report = {
     repository,
     dryRun,
-    strictRelationships,
+    allowOverwrite,
     generatedAt: new Date().toISOString(),
     fetched: {
       artists: artists.length,
@@ -454,8 +321,7 @@ async function main() {
       playedDates: recordResult.playedDatesWritten,
     },
     relationships: {
-      linkedBy: recordResult.linkedBy,
-      artistRecordConflicts: artistLinkIndex.conflicts,
+      linkedRecords: recordResult.linkedRecords,
     },
     skipped: {
       artists: artistMaps.skipped,

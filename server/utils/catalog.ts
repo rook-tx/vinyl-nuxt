@@ -39,7 +39,6 @@ export const toRecordItem = (record: RecordWithRelations): RecordItem => {
             alt: record.coverAlt,
           }
         : null,
-      artist: artists[0] ?? null,
       artists,
       record_id: record.recordId,
       played: record.played

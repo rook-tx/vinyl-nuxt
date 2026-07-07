@@ -10,11 +10,10 @@
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
     "db:push": "prisma db push",
-    "db:seed": "prisma db seed",
+    "db:seed": "node prisma/seed.mjs",
     "db:import:prismic": "node prisma/import-prismic.mjs",
     "db:import:prismic:dry": "node prisma/import-prismic.mjs --dry-run",
-    "db:import:prismic:strict": "node prisma/import-prismic.mjs --strict-relationships",
-    "db:import:prismic:strict:dry": "node prisma/import-prismic.mjs --dry-run --strict-relationships",
+    "db:import:prismic:overwrite": "node prisma/import-prismic.mjs --allow-overwrite",
     "db:studio": "prisma studio",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
@@ -37,8 +36,5 @@
     "prisma": "^6.16.1",
     "stylus": "^0.64.0",
     "vitest": "^4.1.10"
-  },
-  "prisma": {
-    "seed": "node prisma/seed.mjs"
   }
 }

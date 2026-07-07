@@ -26,7 +26,6 @@ export type RecordItem = {
   data: {
     title: string
     cover: ImageField | null
-    artist: ArtistLink | null
     artists: ArtistLink[]
     record_id: string | null
     played: Array<{ date: string | null }>

@@ -1,6 +1,4 @@
-# Vinyl Collection (Self-Hosted DB)
-
-This project now uses a self-hosted PostgreSQL database (via Docker) and Prisma instead of Prismic.
+# Vinyl Collection
 
 ## Local Setup (Docker + Postgres)
 
@@ -67,9 +65,7 @@ npm run test
 npm run test:watch
 ```
 
-Current tests cover record/artist serialization and record selection utility behavior.
-
-## Import Existing Content From Prismic
+## Initial Data Import
 
 1. Add repository auth in your local .env file.
 
@@ -91,22 +87,17 @@ npm run db:push
 npm run db:import:prismic
 ```
 
+The importer is intended for initial bootstrap and will stop if the database already has data.
+If you intentionally want to rerun import and overwrite linked data, use:
+
+```bash
+npm run db:import:prismic:overwrite
+```
+
 Dry-run preview (no DB writes):
 
 ```bash
 npm run db:import:prismic:dry
-```
-
-Strict relationship mode (fails if one record is linked to multiple artists in Prismic):
-
-```bash
-npm run db:import:prismic:strict
-```
-
-Strict dry-run:
-
-```bash
-npm run db:import:prismic:strict:dry
 ```
 
 What importer does:
@@ -119,7 +110,6 @@ What importer does:
 Import report:
 
 - Every run writes a JSON report to `prisma/reports/prismic-import-latest.json`.
-- In strict mode, conflicts are also written to the report before the command exits with a non-zero code.
 - You can override the report path:
 
 ```bash
@@ -128,11 +118,6 @@ node prisma/import-prismic.mjs --report=prisma/reports/my-import.json
 
 Importer script location: [prisma/import-prismic.mjs](prisma/import-prismic.mjs)
 
-## Moving To A Real Hosted Database Later
+## Deployment Note
 
-1. Provision a hosted PostgreSQL database.
-2. Replace `DATABASE_URL` in `.env` with the hosted connection string.
-3. Run `npm run db:push` against that database.
-4. Deploy the Nuxt app with the same `DATABASE_URL` environment variable.
-
-Because both local and hosted environments are PostgreSQL, no code changes are needed for the move.
+Use a managed PostgreSQL provider in deployment and set `DATABASE_URL` in environment variables.

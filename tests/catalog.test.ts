@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { toArtistItem, toRecordItem } from '../server/utils/catalog'
 
 describe('catalog serializers', () => {
-  it('serializes record artists and keeps legacy first artist field', () => {
+  it('serializes record artists as an array', () => {
     const record = {
       id: 'record-1',
       uid: 'record-one',
@@ -71,7 +71,10 @@ describe('catalog serializers', () => {
     const item = toRecordItem(record)
 
     expect(item.data.artists).toHaveLength(2)
-    expect(item.data.artist?.uid).toBe('artist-a')
+    expect(item.data.artists.map((artist) => artist.uid)).toEqual([
+      'artist-a',
+      'artist-b',
+    ])
     expect(item.data.played.map((p) => p.date)).toEqual([
       '2026-01-04',
       '2026-01-05',

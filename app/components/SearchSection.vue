@@ -22,7 +22,7 @@ const filteredArtists = ref<ArtistItem[]>([])
 
 const fuse = props.records
   ? new Fuse(props.records, {
-      keys: ['data.title', 'data.artists.data.name', 'data.artist.data.name'],
+      keys: ['data.title', 'data.artists.data.name'],
       threshold: 0.4,
     })
   : null

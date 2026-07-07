@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Artist {
+  id              String   @id @default(cuid())
+  uid             String   @unique
+  name            String
+  metaTitle       String?
+  metaDescription String?
+  metaImageUrl    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  records RecordArtist[]
+
+  @@index([name])
+}
+
+model Record {
+  id              String   @id @default(cuid())
+  uid             String   @unique
+  title           String
+  coverUrl        String?
+  coverAlt        String?
+  recordId        String?
+  year            Int?
+  originalYear    Int?
+  discs           Int      @default(1)
+  label           String?
+  notes           String?
+  metaTitle       String?
+  metaDescription String?
+  metaImageUrl    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  artists RecordArtist[]
+  played PlayedDate[]
+
+  @@index([title])
+}
+
+model RecordArtist {
+  recordId  String
+  artistId  String
+  createdAt DateTime @default(now())
+
+  record Record @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@id([recordId, artistId])
+  @@index([artistId])
+}
+
+model PlayedDate {
+  id        String   @id @default(cuid())
+  recordId  String
+  date      DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  record Record @relation(fields: [recordId], references: [id], onDelete: Cascade)
+
+  @@index([recordId])
+  @@index([date])
+}

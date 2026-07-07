@@ -1,0 +1,46 @@
+{
+  "repository": "vinyl",
+  "dryRun": true,
+  "strictRelationships": false,
+  "generatedAt": "2026-07-07T22:07:51.769Z",
+  "fetched": {
+    "artists": 75,
+    "records": 108
+  },
+  "imported": {
+    "artists": 75,
+    "records": 108,
+    "playedDates": 12
+  },
+  "relationships": {
+    "linkedBy": {
+      "record.artist.id": 100,
+      "record.artist.uid": 0,
+      "artist.records.id": 4,
+      "artist.records.uid": 0,
+      "none": 4
+    },
+    "artistRecordConflicts": [
+      {
+        "recordPrismicId": "afUerBEAACgAjdlV",
+        "artists": [
+          "afUebBEAACkAjdjr",
+          "aYjoJREAACIAxPip",
+          "aYjm-BEAAB8AxPbX"
+        ]
+      },
+      {
+        "recordUid": "the-sound-of-music",
+        "artists": [
+          "afUebBEAACkAjdjr",
+          "aYjoJREAACIAxPip",
+          "aYjm-BEAAB8AxPbX"
+        ]
+      }
+    ]
+  },
+  "skipped": {
+    "artists": [],
+    "records": []
+  }
+}

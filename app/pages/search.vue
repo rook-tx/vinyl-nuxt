@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import SearchSection from '~/components/SearchSection.vue'
-const { client } = usePrismic()
+import type { ArtistItem, RecordItem } from '~~/shared/types/catalog'
 
-const { data: records } = await useAsyncData(`[search-index]`, () =>
-  client.getAllByType('record')
+const { data: records } = await useAsyncData<RecordItem[]>(
+  `[search-index]`,
+  () => $fetch('/api/records')
 )
-const { data: artists } = await useAsyncData(`[search-artists]`, () =>
-  client.getAllByType('artist')
+const { data: artists } = await useAsyncData<ArtistItem[]>(
+  `[search-artists]`,
+  () => $fetch('/api/artists')
 )
 </script>
 

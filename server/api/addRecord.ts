@@ -1,74 +1,148 @@
-import {
-  createMigration,
-  createWriteClient,
-  PendingPrismicDocument,
-} from '@prismicio/client'
+import { createError } from 'h3'
+import { requireLocalAuth } from '~~/server/utils/auth'
+import { db } from '~~/server/utils/db'
+import { slugify, toRecordItem } from '~~/server/utils/catalog'
 
-type RecordData = {
-  title: string | null
-  record_id: string | null
-  year: number | null
-  original_year: number | null
-  discs: number | null
-  label: string | null
-  notes: string | null
+type AddRecordPayload = {
+  title?: string
+  artist_ids?: string[]
+  artist_uids?: string[]
+  artist_names?: string[]
+  artist_id?: string
+  artist_uid?: string
+  artist_name?: string
+  record_id?: string
+  year?: number
+  original_year?: number
+  discs?: number
+  label?: string
+  notes?: string
+  cover_url?: string
 }
-
-const token = process.env.PRISMIC_WRITE_TOKEN
-
-if (!token) {
-  throw new Error('PRISMIC_WRITE_TOKEN is not set')
-}
-
-const migrateClient = createWriteClient('vinyl', {
-  writeToken: token,
-})
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event).catch(() => {})
+  requireLocalAuth(event)
 
-  if (!body.title) {
-    throw new Error('Title is required')
+  const body = (await readBody(event).catch(() => ({}))) as AddRecordPayload
+
+  if (!body.title?.trim()) {
+    throw createError({ statusCode: 400, statusMessage: 'Title is required' })
   }
 
-  const migration = createMigration()
-  const uid = body.title.toLowerCase().replace(/\s+/g, '-').replace(/'/g, '')
+  const artistIds = new Set<string>()
 
-  const document: PendingPrismicDocument = {
-    lang: 'en-gb',
-    type: 'record',
-    uid: uid,
+  const artistIdsInput = [
+    ...(Array.isArray(body.artist_ids) ? body.artist_ids : []),
+    ...(body.artist_id ? [body.artist_id] : []),
+  ]
+
+  for (const rawId of artistIdsInput) {
+    const id = rawId?.trim()
+    if (!id) continue
+
+    const artist = await db.artist.findUnique({
+      where: { id },
+      select: { id: true },
+    })
+
+    if (!artist) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: `Invalid artist_id: ${id}`,
+      })
+    }
+
+    artistIds.add(artist.id)
+  }
+
+  const artistUidsInput = [
+    ...(Array.isArray(body.artist_uids) ? body.artist_uids : []),
+    ...(body.artist_uid ? [body.artist_uid] : []),
+  ]
+
+  for (const rawUid of artistUidsInput) {
+    const uid = rawUid?.trim()
+    if (!uid) continue
+
+    const artist = await db.artist.findUnique({
+      where: { uid },
+      select: { id: true },
+    })
+
+    if (!artist) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: `Invalid artist_uid: ${uid}`,
+      })
+    }
+
+    artistIds.add(artist.id)
+  }
+
+  const artistNamesInput = [
+    ...(Array.isArray(body.artist_names) ? body.artist_names : []),
+    ...(body.artist_name ? [body.artist_name] : []),
+  ]
+
+  for (const rawName of artistNamesInput) {
+    const artistName = rawName?.trim()
+    if (!artistName) continue
+
+    const artist = await db.artist.upsert({
+      where: { uid: slugify(artistName) },
+      update: { name: artistName },
+      create: {
+        uid: slugify(artistName),
+        name: artistName,
+      },
+    })
+    artistIds.add(artist.id)
+  }
+
+  const created = await db.record.create({
     data: {
-      title: body.title,
-      record_id: body.record_id,
-      year: body.year,
-      original_year: body.original_year,
-      label: body.label ?? '',
+      uid: slugify(body.title),
+      title: body.title.trim(),
+      recordId: body.record_id ?? null,
+      year: body.year ?? null,
+      originalYear: body.original_year ?? null,
       discs: body.discs ?? 1,
-      notes: body.notes,
+      label: body.label ?? null,
+      notes: body.notes ?? null,
+      coverUrl: body.cover_url ?? null,
+      metaTitle: body.title.trim(),
+      metaDescription: body.notes ?? null,
     },
+  })
+
+  if (artistIds.size > 0) {
+    await db.recordArtist.createMany({
+      data: [...artistIds].map((artistId) => ({
+        recordId: created.id,
+        artistId,
+      })),
+      skipDuplicates: true,
+    })
   }
 
-  console.log('Creating migration for document:', document)
-
-  try {
-    migration.createDocument(document, body.title)
-
-    await migrateClient
-      .migrate(migration, {
-        reporter(event) {
-          console.log(event.type)
+  const createdWithRelations = await db.record.findUnique({
+    where: { id: created.id },
+    include: {
+      artists: {
+        include: {
+          artist: true,
         },
-      })
-      .catch((error) => {
-        throw new Error('Migration failed', { cause: error })
-      })
-  } catch (error) {
-    console.error('Error creating migration:', error)
-    throw new Error('Failed to create migration')
+      },
+      played: true,
+    },
+  })
+
+  if (!createdWithRelations) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Record not found after create',
+    })
   }
 
-  return {
-    client: 'migrated',
-  }
+  return toRecordItem(createdWithRelations)
 })

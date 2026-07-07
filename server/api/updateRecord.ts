@@ -1,39 +1,62 @@
-import { createMigration, createWriteClient } from '@prismicio/client'
-
-const token = process.env.PRISMIC_WRITE_TOKEN
-
-if (!token) {
-  throw new Error('PRISMIC_WRITE_TOKEN is not set')
-}
-
-const migrateClient = createWriteClient('vinyl', {
-  writeToken: token,
-})
+import { createError } from 'h3'
+import { requireLocalAuth } from '~~/server/utils/auth'
+import { db } from '~~/server/utils/db'
+import { toRecordItem } from '~~/server/utils/catalog'
 
 export default defineEventHandler(async (event) => {
-  if (!event) return
+  requireLocalAuth(event)
 
-  const body = await readBody(event).catch(() => {})
-  const migration = createMigration()
-
-  migration.updateDocument({
-    ...body.page,
-    data: {
-      ...body.page.data,
-      played: [
-        ...body.page.data.played,
-        { date: new Date().toISOString().slice(0, 10) },
-      ],
-    },
-  })
-
-  await migrateClient.migrate(migration, {
-    reporter(event) {
-      console.log(event.type)
-    },
-  })
-
-  return {
-    client: 'migrated',
+  const body = (await readBody(event).catch(() => ({}))) as {
+    page?: { uid?: string }
   }
+
+  const uid = body.page?.uid
+  if (!uid) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Record UID is required',
+    })
+  }
+
+  const record = await db.record.findUnique({
+    where: { uid },
+    select: { id: true },
+  })
+
+  if (!record) {
+    throw createError({ statusCode: 404, statusMessage: 'Record not found' })
+  }
+
+  const now = new Date()
+  const today = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  )
+
+  await db.playedDate.create({
+    data: {
+      recordId: record.id,
+      date: today,
+    },
+  })
+
+  const updated = await db.record.findUnique({
+    where: { uid },
+    include: {
+      artists: {
+        include: {
+          artist: true,
+        },
+      },
+      played: true,
+    },
+  })
+
+  if (!updated) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Record not found after update',
+    })
+  }
+
+  return toRecordItem(updated)
 })

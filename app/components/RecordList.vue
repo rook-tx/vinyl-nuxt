@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import type { RecordDocument } from '~~/prismicio-types'
+import type { RecordLink } from '~~/shared/types/catalog'
 
 export type RecordListData = {
-  uid: RecordDocument['uid']
-  data: {
-    title: RecordDocument['data']['title']
-    cover: RecordDocument['data']['cover']
-  }
+  uid: RecordLink['uid']
+  data: RecordLink['data']
 }
 
 const props = defineProps({

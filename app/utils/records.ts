@@ -1,6 +1,4 @@
-import { isFilled } from '@prismicio/client'
-
-import type { RecordDocument } from '~~/prismicio-types'
+import type { RecordItem } from '~~/shared/types/catalog'
 
 export const shuffleArray = <T>(items: T[]) => {
   const shuffled = [...items]
@@ -15,17 +13,14 @@ export const shuffleArray = <T>(items: T[]) => {
   return shuffled
 }
 
-const hasValidPlayedDates = (record: RecordDocument<string>) => {
+const hasValidPlayedDates = (record: RecordItem) => {
   return (
-    isFilled.group(record.data.played) &&
-    record.data.played.every((play) => isFilled.date(play.date))
+    record.data.played.length > 0 &&
+    record.data.played.every((play) => Boolean(play.date))
   )
 }
 
-export const getLastPlayedRecords = (
-  records: RecordDocument<string>[],
-  limit = 3
-) => {
+export const getLastPlayedRecords = (records: RecordItem[], limit = 3) => {
   return records
     .filter(hasValidPlayedDates)
     .sort((a, b) => {
@@ -39,17 +34,17 @@ export const getLastPlayedRecords = (
     .slice(0, limit)
 }
 
-export const getNeverPlayedRecords = (records: RecordDocument<string>[]) => {
+export const getNeverPlayedRecords = (records: RecordItem[]) => {
   return records.filter((record) => {
     return (
-      !isFilled.group(record.data.played) ||
-      record.data.played.every((play) => !isFilled.date(play.date))
+      record.data.played.length === 0 ||
+      record.data.played.every((play) => !play.date)
     )
   })
 }
 
 export const getRandomNeverPlayedRecords = (
-  records: RecordDocument<string>[],
+  records: RecordItem[],
   limit = 3
 ) => {
   return shuffleArray(getNeverPlayedRecords(records)).slice(0, limit)

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Fuse from 'fuse.js'
-import type { ArtistDocument, RecordDocument } from '~~/prismicio-types'
+import type { ArtistItem, RecordItem } from '~~/shared/types/catalog'
 import ArtistList from './ArtistList.vue'
 
 const props = defineProps({
@@ -9,20 +9,20 @@ const props = defineProps({
     default: 'Search by record title, artist…',
   },
   records: {
-    type: Array as () => RecordDocument<string>[],
+    type: Array as () => RecordItem[],
   },
   artists: {
-    type: Array as () => ArtistDocument<string>[],
+    type: Array as () => ArtistItem[],
   },
 })
 
 const searchTerm = ref('')
-const filteredRecords = ref<RecordDocument<string>[]>([])
-const filteredArtists = ref<ArtistDocument<string>[]>([])
+const filteredRecords = ref<RecordItem[]>([])
+const filteredArtists = ref<ArtistItem[]>([])
 
 const fuse = props.records
   ? new Fuse(props.records, {
-      keys: ['data.title', 'data.artist.data.name'],
+      keys: ['data.title', 'data.artists.data.name', 'data.artist.data.name'],
       threshold: 0.4,
     })
   : null

@@ -1,18 +1,19 @@
-import { apiEndpoint, repositoryName } from './slicemachine.config.json'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: [
-    '@nuxt/eslint',
-    '@nuxt/fonts',
-    '@nuxt/image',
-    '@nuxtjs/prismic',
-    'nuxt-lucide-icons',
-  ],
+  modules: ['@nuxt/eslint', '@nuxt/fonts', '@nuxt/image', 'nuxt-lucide-icons'],
 
-  prismic: {
-    endpoint: apiEndpoint || repositoryName,
+  runtimeConfig: {
+    auth: {
+      enabled: process.env.AUTH_ENABLED !== 'false',
+      password: process.env.AUTH_PASSWORD || '',
+      secret: process.env.AUTH_SECRET || '',
+      sessionTtlSec: Number(process.env.AUTH_SESSION_TTL_SEC || 86400),
+    },
+    public: {
+      authEnabled: process.env.AUTH_ENABLED !== 'false',
+    },
   },
 
   app: {
@@ -21,7 +22,8 @@ export default defineNuxtConfig({
       meta: [
         {
           name: 'description',
-          content: 'A vinyl collection app built with Nuxt 4 and Prismic',
+          content:
+            'A vinyl collection app built with Nuxt 4 and a self-hosted database',
         },
         {
           name: 'viewport',

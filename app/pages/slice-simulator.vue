@@ -1,9 +1,10 @@
-<script setup lang="ts">
-import { components } from "~/slices";
-</script>
-
 <template>
-  <SliceSimulator #default="{ slices }">
-    <SliceZone :slices="slices" :components="components" />
-  </SliceSimulator>
+  <main class="page">
+    <div class="content">
+      <h1>Slice Simulator Removed</h1>
+      <p>
+        This project now uses a self-hosted database instead of Prismic slices.
+      </p>
+    </div>
+  </main>
 </template>

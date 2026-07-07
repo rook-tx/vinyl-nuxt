@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { asDate, isFilled } from '@prismicio/client'
-import { usePrismic } from '#imports'
 import RecordCarousel from '~/components/RecordCarousel.vue'
 import RecordList from '~/components/RecordList.vue'
 import {
@@ -8,12 +6,10 @@ import {
   getNeverPlayedRecords,
   getRandomNeverPlayedRecords,
 } from '~/utils/records'
-import type { RecordDocument } from '~~/prismicio-types'
+import type { RecordItem } from '~~/shared/types/catalog'
 
-const { client } = usePrismic()
-const { data: records } = await useAsyncData<RecordDocument<string>[]>(
-  `[home-index]`,
-  () => client.getAllByType('record')
+const { data: records } = await useAsyncData<RecordItem[]>(`[home-index]`, () =>
+  $fetch('/api/records')
 )
 
 const lastPlayed = computed(() => {
@@ -24,7 +20,7 @@ const neverPlayedBase = computed(() => {
   return getNeverPlayedRecords(records.value ?? [])
 })
 
-const neverPlayed = ref<RecordDocument<string>[]>([])
+const neverPlayed = ref<RecordItem[]>([])
 
 const updateNeverPlayed = () => {
   neverPlayed.value = getRandomNeverPlayedRecords(neverPlayedBase.value, 3)
@@ -38,10 +34,10 @@ onMounted(() => {
   })
 })
 
-function getDate(record: RecordDocument<string>) {
+function getDate(record: RecordItem) {
   const lastPlay = record.data.played[record.data.played.length - 1]
-  if (!isFilled.date(lastPlay?.date)) return ''
-  return asDate(lastPlay?.date)?.toLocaleDateString(undefined, {
+  if (!lastPlay?.date) return ''
+  return new Date(lastPlay.date).toLocaleDateString(undefined, {
     dateStyle: 'long',
   })
 }

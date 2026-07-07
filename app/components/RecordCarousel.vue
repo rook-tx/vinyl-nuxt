@@ -4,22 +4,22 @@ import 'keen-slider/keen-slider.min.css'
 
 import { shuffleArray } from '~/utils/records'
 
-import type { RecordDocument } from '~~/prismicio-types'
+import type { RecordItem } from '~~/shared/types/catalog'
 
 const props = defineProps({
   records: {
-    type: Array as () => RecordDocument<string>[],
+    type: Array as () => RecordItem[],
     required: true,
   },
 })
 
-const recordList = ref<RecordDocument<string>[]>([...props.records])
+const recordList = ref<RecordItem[]>([...props.records])
 
 const [container, slider] = useKeenSlider({
   loop: true,
 })
 
-const updateRecordList = (records: RecordDocument<string>[]) => {
+const updateRecordList = (records: RecordItem[]) => {
   recordList.value = shuffleArray(records)
   nextTick(() => {
     slider.value?.update()

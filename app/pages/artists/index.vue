@@ -1,12 +1,9 @@
 <script setup lang="ts">
-const { client } = usePrismic()
-const { data: artists } = await useAsyncData(`[artist-index]`, () =>
-  client.getAllByType('artist', {
-    orderings: {
-      field: 'my.artist.name',
-      direction: 'asc',
-    },
-  })
+import type { ArtistItem } from '~~/shared/types/catalog'
+
+const { data: artists } = await useAsyncData<ArtistItem[]>(
+  `[artist-index]`,
+  () => $fetch('/api/artists')
 )
 </script>
 
@@ -35,7 +32,7 @@ const { data: artists } = await useAsyncData(`[artist-index]`, () =>
 
   .title-badge {
     display flex
-    align-items bottom 
+    align-items bottom
     justify-content space-between
     gap gut(1)
     padding-right gut(1)

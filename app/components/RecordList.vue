@@ -19,13 +19,14 @@ const props = defineProps({
     <li v-for="record in records" :key="record.uid" class="list-item">
       <NuxtLink :to="`/records/${record.uid}`" class="list-link">
         <div class="list-content">
-          <PrismicImage
+          <NuxtImg
+            v-if="record.data.cover?.url"
             class="list-cover"
-            :field="record.data.cover"
-            :widths="[64, 128]"
+            :src="record.data.cover.url"
+            :alt="record.data.cover.alt || ''"
             width="64"
             height="64"
-            :imgix-params="{ cs: 'srgb' }"
+            loading="lazy"
           />
 
           {{ record.data.title }}

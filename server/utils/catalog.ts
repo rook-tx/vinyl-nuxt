@@ -51,13 +51,6 @@ export const toRecordItem = (record: RecordWithRelations): RecordItem => {
       year: record.year,
       original_year: record.originalYear,
       notes: record.notes,
-      meta_title: record.metaTitle,
-      meta_description: record.metaDescription,
-      meta_image: record.metaImageUrl
-        ? {
-            url: record.metaImageUrl,
-          }
-        : null,
     },
   }
 }
@@ -85,13 +78,6 @@ export const toArtistItem = (artist: ArtistWithRecords): ArtistItem => {
             },
           },
         })),
-      meta_title: artist.metaTitle,
-      meta_description: artist.metaDescription,
-      meta_image: artist.metaImageUrl
-        ? {
-            url: artist.metaImageUrl,
-          }
-        : null,
     },
   }
 }

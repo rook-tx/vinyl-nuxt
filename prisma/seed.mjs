@@ -9,8 +9,6 @@ async function main() {
     create: {
       uid: 'miles-davis',
       name: 'Miles Davis',
-      metaTitle: 'Miles Davis',
-      metaDescription: 'Artist profile for Miles Davis',
     },
   })
 
@@ -26,8 +24,6 @@ async function main() {
       year: 1959,
       originalYear: 1959,
       label: 'Columbia',
-      metaTitle: 'Kind of Blue',
-      metaDescription: 'A landmark jazz record by Miles Davis.',
       played: {
         create: [{ date: new Date('2026-01-05') }],
       },
@@ -46,8 +42,6 @@ async function main() {
       year: 1969,
       originalYear: 1969,
       label: 'Columbia',
-      metaTitle: 'In a Silent Way',
-      metaDescription: 'A foundational electric jazz album by Miles Davis.',
     },
   })
 

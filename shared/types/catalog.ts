@@ -34,9 +34,6 @@ export type RecordItem = {
     year: number | null
     original_year: number | null
     notes: string | null
-    meta_title: string | null
-    meta_description: string | null
-    meta_image: ImageField | null
   }
 }
 
@@ -46,8 +43,5 @@ export type ArtistItem = {
   data: {
     name: string
     records: Array<{ record: RecordLink }>
-    meta_title: string | null
-    meta_description: string | null
-    meta_image: ImageField | null
   }
 }

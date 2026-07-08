@@ -55,12 +55,13 @@ function goNext() {
         class="carousel-item keen-slider__slide"
       >
         <NuxtLink :to="`/records/${record.uid}`">
-          <PrismicImage
-            :field="record.data.cover"
-            :widths="[512, 1024]"
+          <NuxtImg
+            v-if="record.data.cover?.url"
+            :src="record.data.cover.url"
+            :alt="record.data.cover.alt || ''"
             width="512"
             height="512"
-            :imgix-params="{ cs: 'srgb' }"
+            loading="lazy"
           />
         </NuxtLink>
       </div>

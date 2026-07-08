@@ -7,11 +7,14 @@ const { data: page } = await useAsyncData<ArtistItem>(
 )
 
 useSeoMeta({
-  title: page.value?.data.meta_title,
-  ogTitle: page.value?.data.meta_title,
-  description: page.value?.data.meta_description,
-  ogDescription: page.value?.data.meta_description,
-  ogImage: computed(() => page.value?.data.meta_image?.url),
+  title: computed(() => page.value?.data.name),
+  ogTitle: computed(() => page.value?.data.name),
+  description: computed(() =>
+    page.value ? `Records by ${page.value.data.name}` : undefined
+  ),
+  ogDescription: computed(() =>
+    page.value ? `Records by ${page.value.data.name}` : undefined
+  ),
 })
 
 const filteredRecords = computed(() => {

@@ -110,8 +110,6 @@ export default defineEventHandler(async (event) => {
       label: body.label ?? null,
       notes: body.notes ?? null,
       coverUrl: body.cover_url ?? null,
-      metaTitle: body.title.trim(),
-      metaDescription: body.notes ?? null,
     },
   })
 

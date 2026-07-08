@@ -9,12 +9,21 @@ const { data: page } = await useAsyncData<RecordItem>(
 
 const marked = ref(false)
 
+const noteParagraphs = computed(() => {
+  const notes = page.value?.data.notes
+  if (!notes) return []
+  return notes
+    .split(/\n\n+/)
+    .map((chunk) => chunk.trim())
+    .filter(Boolean)
+})
+
 useSeoMeta({
-  title: page.value?.data.meta_title,
-  ogTitle: page.value?.data.meta_title,
-  description: page.value?.data.meta_description,
-  ogDescription: page.value?.data.meta_description,
-  ogImage: computed(() => page.value?.data.meta_image?.url),
+  title: computed(() => page.value?.data.title),
+  ogTitle: computed(() => page.value?.data.title),
+  description: computed(() => page.value?.data.notes ?? undefined),
+  ogDescription: computed(() => page.value?.data.notes ?? undefined),
+  ogImage: computed(() => page.value?.data.cover?.url),
 })
 
 async function addDate() {
@@ -54,12 +63,13 @@ async function addDate() {
   <main v-if="page" class="page record">
     <div class="content">
       <div class="cover-wrapper">
-        <PrismicImage
+        <NuxtImg
+          v-if="page.data.cover?.url"
           class="cover"
-          :field="page.data.cover"
-          :widths="[300, 600]"
+          :src="page.data.cover.url"
+          :alt="page.data.cover.alt || ''"
           width="300"
-          :imgix-params="{ cs: 'srgb' }"
+          loading="lazy"
         />
       </div>
       <h1 class="record-title">{{ page.data.title }}</h1>
@@ -114,7 +124,9 @@ async function addDate() {
 
       <h3 class="detail-heading" v-if="page.data.notes">Notes</h3>
       <div class="detail" v-if="page.data.notes">
-        <PrismicRichText :field="page.data.notes" />
+        <p v-for="(paragraph, idx) in noteParagraphs" :key="idx">
+          {{ paragraph }}
+        </p>
       </div>
 
       <hr class="closer" />

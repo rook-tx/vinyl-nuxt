@@ -120,16 +120,10 @@ async function importArtists(artists) {
       where: { uid },
       update: {
         name: artistDoc.data?.name || uid,
-        metaTitle: artistDoc.data?.meta_title || null,
-        metaDescription: artistDoc.data?.meta_description || null,
-        metaImageUrl: artistDoc.data?.meta_image?.url || null,
       },
       create: {
         uid,
         name: artistDoc.data?.name || uid,
-        metaTitle: artistDoc.data?.meta_title || null,
-        metaDescription: artistDoc.data?.meta_description || null,
-        metaImageUrl: artistDoc.data?.meta_image?.url || null,
       },
     })
 
@@ -212,9 +206,6 @@ async function importRecords(records, artistMaps) {
           : 1,
         label: recordDoc.data?.label || null,
         notes: toPlainText(recordDoc.data?.notes),
-        metaTitle: recordDoc.data?.meta_title || null,
-        metaDescription: recordDoc.data?.meta_description || null,
-        metaImageUrl: recordDoc.data?.meta_image?.url || null,
       },
       create: {
         uid,
@@ -233,9 +224,6 @@ async function importRecords(records, artistMaps) {
           : 1,
         label: recordDoc.data?.label || null,
         notes: toPlainText(recordDoc.data?.notes),
-        metaTitle: recordDoc.data?.meta_title || null,
-        metaDescription: recordDoc.data?.meta_description || null,
-        metaImageUrl: recordDoc.data?.meta_image?.url || null,
       },
     })
 

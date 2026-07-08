@@ -65,9 +65,12 @@ npm run test
 npm run test:watch
 ```
 
-## Initial Data Import
+## One-Time Legacy Import (Optional)
 
-1. Add repository auth in your local .env file.
+Prismic is not used as a runtime CMS in this app.
+The importer below exists only for initial/legacy data migration into the local database.
+
+1. Add legacy source auth in your local .env file.
 
 ```bash
 PRISMIC_REPOSITORY="vinyl"
@@ -81,7 +84,7 @@ npm run db:up
 npm run db:push
 ```
 
-3. Run the importer.
+3. Run the importer once.
 
 ```bash
 npm run db:import:prismic
@@ -106,6 +109,8 @@ What importer does:
 - Upserts artists first, then upserts records and links their artist.
 - Converts Prismic rich text notes to plain text.
 - Replaces each record's played dates with Prismic played group values.
+
+After import, the app runs entirely on Postgres and API endpoints in this repository.
 
 Import report:
 

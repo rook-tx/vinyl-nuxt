@@ -12,6 +12,11 @@ export type RecordLink = {
   }
 }
 
+export type RecordListData = {
+  uid: RecordLink['uid']
+  data: RecordLink['data']
+}
+
 export type ArtistLink = {
   id: string
   uid: string

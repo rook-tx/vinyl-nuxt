@@ -7,7 +7,6 @@ export default defineNuxtConfig({
   runtimeConfig: {
     auth: {
       enabled: process.env.AUTH_ENABLED !== 'false',
-      password: process.env.AUTH_PASSWORD || '',
       secret: process.env.AUTH_SECRET || '',
       sessionTtlSec: Number(process.env.AUTH_SESSION_TTL_SEC || 86400),
     },

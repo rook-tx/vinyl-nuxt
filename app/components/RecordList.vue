@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import type { RecordLink } from '~~/shared/types/catalog'
-
-export type RecordListData = {
-  uid: RecordLink['uid']
-  data: RecordLink['data']
-}
+import type { RecordListData } from '~~/shared/types/catalog'
 
 const props = defineProps({
   records: {

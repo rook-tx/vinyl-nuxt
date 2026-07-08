@@ -21,7 +21,7 @@ type AddRecordPayload = {
 }
 
 export default defineEventHandler(async (event) => {
-  requireLocalAuth(event)
+  const { userId } = requireLocalAuth(event)
 
   const body = (await readBody(event).catch(() => ({}))) as AddRecordPayload
 
@@ -131,7 +131,13 @@ export default defineEventHandler(async (event) => {
           artist: true,
         },
       },
-      played: true,
+      collectionItems: {
+        where: { userId },
+        select: {
+          id: true,
+          played: true,
+        },
+      },
     },
   })
 

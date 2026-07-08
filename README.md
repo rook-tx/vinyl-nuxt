@@ -18,12 +18,11 @@ Set auth values in `.env` before using write actions in the app:
 
 ```bash
 AUTH_ENABLED="true"
-AUTH_PASSWORD="your-local-password"
 AUTH_SECRET="a-long-random-secret"
 AUTH_SESSION_TTL_SEC="86400"
 ```
 
-This gate is intentionally local-first: a single password creates an HTTP-only cookie session. The auth logic is centralized in `server/utils/auth.ts`, making it straightforward to replace with a full provider later.
+This gate is intentionally local-first: users sign in with email + password and receive an HTTP-only cookie session. The auth logic is centralized in `server/utils/auth.ts`, making it straightforward to replace with a full provider later.
 
 3. Start the local database container.
 
@@ -43,7 +42,11 @@ npm run db:push
 npm run db:seed
 ```
 
-This seed uses [prisma/seed.mjs](prisma/seed.mjs) and inserts a small starter dataset (Miles Davis + 2 records) with idempotent upserts.
+This seed uses [prisma/seed.mjs](prisma/seed.mjs) and creates the first local user:
+
+- display name: `tom`
+- email: `twcorb@gmail.com`
+- password: `collection`
 
 6. Start Nuxt dev server.
 
@@ -108,7 +111,7 @@ What importer does:
 - Reads all artist and record documents from Prismic.
 - Upserts artists first, then upserts records and links their artist.
 - Converts Prismic rich text notes to plain text.
-- Replaces each record's played dates with Prismic played group values.
+- For records with played dates in Prismic, adds that record to tom's personal collection (one item per record) and writes those play dates to the personal item.
 
 After import, the app runs entirely on Postgres and API endpoints in this repository.
 

@@ -4,7 +4,7 @@ import { db } from '~~/server/utils/db'
 import { toRecordItem } from '~~/server/utils/catalog'
 
 export default defineEventHandler(async (event) => {
-  requireLocalAuth(event)
+  const { userId } = requireLocalAuth(event)
 
   const uid = getRouterParam(event, 'uid')
 
@@ -24,14 +24,34 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Record not found' })
   }
 
+  const collectionItem = await db.collectionItem.findFirst({
+    where: {
+      userId,
+      recordId: record.id,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    select: {
+      id: true,
+    },
+  })
+
+  if (!collectionItem) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Add this record to your collection before marking played',
+    })
+  }
+
   const now = new Date()
   const today = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
   )
 
-  await db.playedDate.create({
+  await db.collectionItemPlayedDate.create({
     data: {
-      recordId: record.id,
+      collectionItemId: collectionItem.id,
       date: today,
     },
   })
@@ -44,7 +64,13 @@ export default defineEventHandler(async (event) => {
           artist: true,
         },
       },
-      played: true,
+      collectionItems: {
+        where: { userId },
+        select: {
+          id: true,
+          played: true,
+        },
+      },
     },
   })
 

@@ -35,9 +35,20 @@ model Record {
   updatedAt       DateTime @updatedAt
 
   artists RecordArtist[]
-  played PlayedDate[]
+  collectionItems CollectionItem[]
 
   @@index([title])
+}
+
+model User {
+  id           String           @id @default(cuid())
+  email        String           @unique
+  passwordHash String
+  displayName  String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  collectionItems CollectionItem[]
 }
 
 model RecordArtist {
@@ -52,14 +63,30 @@ model RecordArtist {
   @@index([artistId])
 }
 
-model PlayedDate {
+model CollectionItem {
+  id            String   @id @default(cuid())
+  userId        String
+  recordId      String
+  personalNotes String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  record Record @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  played CollectionItemPlayedDate[]
+
+  @@index([userId, createdAt])
+  @@index([userId, recordId])
+}
+
+model CollectionItemPlayedDate {
   id        String   @id @default(cuid())
-  recordId  String
+  collectionItemId String
   date      DateTime @db.Date
   createdAt DateTime @default(now())
 
-  record Record @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  collectionItem CollectionItem @relation(fields: [collectionItemId], references: [id], onDelete: Cascade)
 
-  @@index([recordId])
+  @@index([collectionItemId])
   @@index([date])
 }

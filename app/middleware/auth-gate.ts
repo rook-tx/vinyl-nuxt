@@ -1,8 +1,4 @@
-type AuthSession = {
-  enabled: boolean
-  configured: boolean
-  authenticated: boolean
-}
+import type { AuthSession } from '~~/shared/types/auth'
 
 export default defineNuxtRouteMiddleware(async (to) => {
   const session = await $fetch<AuthSession>('/api/auth/session').catch(

@@ -1,11 +1,19 @@
-import { createHmac, timingSafeEqual } from 'node:crypto'
+import {
+  createHmac,
+  randomBytes,
+  scryptSync,
+  timingSafeEqual,
+} from 'node:crypto'
 import { createError, deleteCookie, getCookie, setCookie } from 'h3'
 import type { H3Event } from 'h3'
 
 const SESSION_COOKIE_NAME = 'collection_session'
+const SCRYPT_KEY_LENGTH = 64
+
+const PASSWORD_HASH_PREFIX = 'scrypt'
 
 type SessionPayload = {
-  sub: 'local-admin'
+  sub: string
   iat: number
   exp: number
   v: 1
@@ -13,7 +21,6 @@ type SessionPayload = {
 
 type LocalAuthConfig = {
   enabled: boolean
-  password: string
   secret: string
   sessionTtlSec: number
 }
@@ -23,7 +30,6 @@ function getLocalAuthConfig(event: H3Event): LocalAuthConfig {
 
   return {
     enabled: Boolean(runtimeConfig.auth.enabled),
-    password: String(runtimeConfig.auth.password || ''),
     secret: String(runtimeConfig.auth.secret || ''),
     sessionTtlSec: Number(runtimeConfig.auth.sessionTtlSec || 86400),
   }
@@ -52,10 +58,14 @@ function safeEqual(left: string, right: string): boolean {
   return timingSafeEqual(leftBuffer, rightBuffer)
 }
 
-function createSessionToken(secret: string, sessionTtlSec: number): string {
+function createSessionToken(
+  secret: string,
+  sessionTtlSec: number,
+  userId: string
+): string {
   const now = Math.floor(Date.now() / 1000)
   const payload: SessionPayload = {
-    sub: 'local-admin',
+    sub: userId,
     iat: now,
     exp: now + sessionTtlSec,
     v: 1,
@@ -86,7 +96,12 @@ function readSessionToken(
     const parsed = JSON.parse(decodeBase64Url(encodedPayload)) as SessionPayload
     const now = Math.floor(Date.now() / 1000)
 
-    if (parsed.sub !== 'local-admin' || parsed.v !== 1 || parsed.exp <= now) {
+    if (
+      typeof parsed.sub !== 'string' ||
+      parsed.sub.length === 0 ||
+      parsed.v !== 1 ||
+      parsed.exp <= now
+    ) {
       return null
     }
 
@@ -103,25 +118,64 @@ function assertAuthIsConfigured(event: H3Event) {
     return
   }
 
-  if (!config.password || !config.secret) {
+  if (!config.secret) {
     throw createError({
       statusCode: 500,
-      statusMessage:
-        'Local auth is enabled but missing AUTH_PASSWORD or AUTH_SECRET',
+      statusMessage: 'Local auth is enabled but missing AUTH_SECRET',
     })
   }
 }
 
+function splitPasswordHash(value: string): [string, string, string] | null {
+  const [scheme, salt, hash] = value.split('$')
+
+  if (!scheme || !salt || !hash) {
+    return null
+  }
+
+  return [scheme, salt, hash]
+}
+
+export function hashPassword(password: string): string {
+  const salt = randomBytes(16).toString('hex')
+  const hash = scryptSync(password, salt, SCRYPT_KEY_LENGTH).toString('hex')
+  return `${PASSWORD_HASH_PREFIX}$${salt}$${hash}`
+}
+
+export function verifyPassword(password: string, encodedHash: string): boolean {
+  const parts = splitPasswordHash(encodedHash)
+  if (!parts) {
+    return false
+  }
+
+  const [scheme, salt, hash] = parts
+  if (scheme !== PASSWORD_HASH_PREFIX) {
+    return false
+  }
+
+  const expected = Buffer.from(hash, 'hex')
+  const actual = Buffer.from(
+    scryptSync(password, salt, SCRYPT_KEY_LENGTH).toString('hex'),
+    'hex'
+  )
+
+  if (expected.length !== actual.length) {
+    return false
+  }
+
+  return timingSafeEqual(expected, actual)
+}
+
 export function getLocalAuthState(event: H3Event) {
   const config = getLocalAuthConfig(event)
-  const configured =
-    !config.enabled || Boolean(config.password && config.secret)
+  const configured = !config.enabled || Boolean(config.secret)
 
   if (!config.enabled) {
     return {
       enabled: false,
       configured,
-      authenticated: true,
+      authenticated: false,
+      userId: null,
     }
   }
 
@@ -130,6 +184,7 @@ export function getLocalAuthState(event: H3Event) {
       enabled: true,
       configured: false,
       authenticated: false,
+      userId: null,
     }
   }
 
@@ -140,20 +195,14 @@ export function getLocalAuthState(event: H3Event) {
     enabled: true,
     configured: true,
     authenticated: Boolean(session),
+    userId: session?.sub ?? null,
   }
 }
 
-export function verifyLocalPassword(event: H3Event, password: string): boolean {
+export function createLocalSession(event: H3Event, userId: string) {
   assertAuthIsConfigured(event)
   const config = getLocalAuthConfig(event)
-
-  return safeEqual(password, config.password)
-}
-
-export function createLocalSession(event: H3Event) {
-  assertAuthIsConfigured(event)
-  const config = getLocalAuthConfig(event)
-  const token = createSessionToken(config.secret, config.sessionTtlSec)
+  const token = createSessionToken(config.secret, config.sessionTtlSec, userId)
 
   setCookie(event, SESSION_COOKIE_NAME, token, {
     httpOnly: true,
@@ -174,21 +223,32 @@ export function requireLocalAuth(event: H3Event) {
   const state = getLocalAuthState(event)
 
   if (!state.enabled) {
-    return
+    throw createError({
+      statusCode: 503,
+      statusMessage: 'Authentication is disabled',
+    })
   }
 
   if (!state.configured) {
     throw createError({
       statusCode: 500,
-      statusMessage:
-        'Local auth is enabled but missing AUTH_PASSWORD or AUTH_SECRET',
+      statusMessage: 'Local auth is enabled but missing AUTH_SECRET',
     })
   }
 
-  if (!state.authenticated) {
+  if (!state.authenticated || !state.userId) {
     throw createError({
       statusCode: 401,
       statusMessage: 'Authentication required',
     })
   }
+
+  return {
+    userId: state.userId,
+  }
+}
+
+export function getOptionalUserId(event: H3Event): string | null {
+  const state = getLocalAuthState(event)
+  return state.authenticated ? state.userId : null
 }

@@ -1,9 +1,17 @@
-import type { Artist, PlayedDate, Record, RecordArtist } from '@prisma/client'
+import type {
+  Artist,
+  CollectionItem,
+  CollectionItemPlayedDate,
+  Record,
+  RecordArtist,
+} from '@prisma/client'
 import type { ArtistItem, RecordItem } from '~~/shared/types/catalog'
 
 type RecordWithRelations = Record & {
   artists: Array<RecordArtist & { artist: Artist }>
-  played: PlayedDate[]
+  collectionItems?: Array<
+    Pick<CollectionItem, 'id'> & { played: CollectionItemPlayedDate[] }
+  >
 }
 
 type ArtistWithRecords = Artist & {
@@ -20,6 +28,10 @@ export const slugify = (value: string) => {
 }
 
 export const toRecordItem = (record: RecordWithRelations): RecordItem => {
+  const playedDates = (record.collectionItems ?? [])
+    .flatMap((item) => item.played)
+    .sort((a, b) => a.date.getTime() - b.date.getTime())
+
   const artists = record.artists.map((link) => ({
     id: link.artist.id,
     uid: link.artist.uid,
@@ -41,11 +53,9 @@ export const toRecordItem = (record: RecordWithRelations): RecordItem => {
         : null,
       artists,
       record_id: record.recordId,
-      played: record.played
-        .sort((a, b) => a.date.getTime() - b.date.getTime())
-        .map((play) => ({
-          date: play.date.toISOString().slice(0, 10),
-        })),
+      played: playedDates.map((play) => ({
+        date: play.date.toISOString().slice(0, 10),
+      })),
       discs: record.discs,
       label: record.label,
       year: record.year,

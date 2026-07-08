@@ -17,7 +17,7 @@
     "db:studio": "prisma studio",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare && prisma generate"
   },
   "dependencies": {
     "@nuxt/eslint": "^1.13.0",

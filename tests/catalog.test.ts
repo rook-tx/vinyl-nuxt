@@ -43,18 +43,23 @@ describe('catalog serializers', () => {
           },
         },
       ],
-      played: [
+      collectionItems: [
         {
-          id: 'p2',
-          recordId: 'record-1',
-          date: new Date('2026-01-05T00:00:00.000Z'),
-          createdAt: new Date('2026-01-05T00:00:00.000Z'),
-        },
-        {
-          id: 'p1',
-          recordId: 'record-1',
-          date: new Date('2026-01-04T00:00:00.000Z'),
-          createdAt: new Date('2026-01-04T00:00:00.000Z'),
+          id: 'ci-1',
+          played: [
+            {
+              id: 'p2',
+              collectionItemId: 'ci-1',
+              date: new Date('2026-01-05T00:00:00.000Z'),
+              createdAt: new Date('2026-01-05T00:00:00.000Z'),
+            },
+            {
+              id: 'p1',
+              collectionItemId: 'ci-1',
+              date: new Date('2026-01-04T00:00:00.000Z'),
+              createdAt: new Date('2026-01-04T00:00:00.000Z'),
+            },
+          ],
         },
       ],
     }

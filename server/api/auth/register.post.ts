@@ -2,7 +2,7 @@ import { createError } from 'h3'
 import {
   createLocalSession,
   getLocalAuthState,
-  verifyPassword,
+  hashPassword,
 } from '~~/server/utils/auth'
 import { db } from '~~/server/utils/db'
 
@@ -22,9 +22,16 @@ export default defineEventHandler(async (event) => {
   const body = (await readBody(event).catch(() => ({}))) as {
     email?: string
     password?: string
+    displayName?: string
   }
-  const email = typeof body.email === 'string' ? body.email.trim() : ''
+
+  const email =
+    typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
   const password = typeof body.password === 'string' ? body.password : ''
+  const displayName =
+    typeof body.displayName === 'string' && body.displayName.trim().length > 0
+      ? body.displayName.trim()
+      : null
 
   if (!email || !password) {
     throw createError({
@@ -33,22 +40,44 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const user = await db.user.findUnique({
-    where: { email: email.toLowerCase() },
+  if (!email.includes('@')) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Email is invalid',
+    })
+  }
+
+  if (password.length < 4) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Password must be at least 4 characters',
+    })
+  }
+
+  const existing = await db.user.findUnique({
+    where: { email },
+    select: { id: true },
+  })
+
+  if (existing) {
+    throw createError({
+      statusCode: 409,
+      statusMessage: 'An account with this email already exists',
+    })
+  }
+
+  const user = await db.user.create({
+    data: {
+      email,
+      passwordHash: hashPassword(password),
+      displayName,
+    },
     select: {
       id: true,
       email: true,
       displayName: true,
-      passwordHash: true,
     },
   })
-
-  if (!user || !verifyPassword(password, user.passwordHash)) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Invalid credentials',
-    })
-  }
 
   createLocalSession(event, user.id)
 
@@ -56,10 +85,6 @@ export default defineEventHandler(async (event) => {
     enabled: true,
     configured: true,
     authenticated: true,
-    user: {
-      id: user.id,
-      email: user.email,
-      displayName: user.displayName,
-    },
+    user,
   }
 })

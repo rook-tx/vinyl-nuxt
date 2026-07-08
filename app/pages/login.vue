@@ -1,9 +1,5 @@
 <script setup lang="ts">
-type AuthSession = {
-  enabled: boolean
-  configured: boolean
-  authenticated: boolean
-}
+import type { AuthSession } from '~~/shared/types/auth'
 
 const route = useRoute()
 const redirect = computed(() => {
@@ -28,7 +24,13 @@ if (session.value?.enabled && session.value?.authenticated) {
 async function login(payload: SubmitEvent) {
   const form = payload.target as HTMLFormElement
   const formData = new FormData(form)
+  const email = formData.get('email')
   const password = formData.get('password')
+
+  if (typeof email !== 'string' || !email.length) {
+    errorMessage.value = 'Email is required.'
+    return
+  }
 
   if (typeof password !== 'string' || !password.length) {
     errorMessage.value = 'Password is required.'
@@ -41,7 +43,10 @@ async function login(payload: SubmitEvent) {
   try {
     await $fetch('/api/auth/login', {
       method: 'POST',
-      body: { password },
+      body: {
+        email,
+        password,
+      },
     })
 
     await refresh()
@@ -56,10 +61,10 @@ async function login(payload: SubmitEvent) {
         : null
 
     if (statusCode === 401) {
-      errorMessage.value = 'Invalid password.'
+      errorMessage.value = 'Invalid email or password.'
     } else if (statusCode === 500) {
       errorMessage.value =
-        'Auth is enabled but not configured. Set AUTH_PASSWORD and AUTH_SECRET.'
+        'Auth is enabled but not configured. Set AUTH_SECRET.'
     } else {
       errorMessage.value = 'Unable to sign in. Please try again.'
     }
@@ -81,6 +86,18 @@ async function login(payload: SubmitEvent) {
       </p>
 
       <form v-if="session?.enabled" class="record-form" @submit.prevent="login">
+        <div class="form-detail">
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            class="input"
+            autocomplete="email"
+            required
+          />
+          <label for="email" class="label">Email</label>
+        </div>
+
         <div class="form-detail">
           <input
             type="password"

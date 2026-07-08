@@ -7,5 +7,6 @@ export default defineEventHandler((event) => {
   return {
     ...state,
     authenticated: state.enabled ? false : state.authenticated,
+    user: null,
   }
 })

@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { randomBytes, scryptSync } from 'node:crypto'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 
@@ -10,6 +11,10 @@ const accessToken =
 const apiBase = `https://${repository}.cdn.prismic.io/api/v2`
 const dryRun = process.argv.includes('--dry-run')
 const allowOverwrite = process.argv.includes('--allow-overwrite')
+const TOM_EMAIL = 'twcorb@gmail.com'
+const TOM_DISPLAY_NAME = 'tom'
+const TOM_PASSWORD = 'collection'
+const SCRYPT_KEY_LENGTH = 64
 const reportPathArg = process.argv.find((arg) => arg.startsWith('--report='))
 const reportPath = reportPathArg
   ? reportPathArg.slice('--report='.length)
@@ -45,6 +50,30 @@ const slugify = (value) =>
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
+
+const hashPassword = (password) => {
+  const salt = randomBytes(16).toString('hex')
+  const hash = scryptSync(password, salt, SCRYPT_KEY_LENGTH).toString('hex')
+  return `scrypt$${salt}$${hash}`
+}
+
+async function ensureTomUser() {
+  return prisma.user.upsert({
+    where: { email: TOM_EMAIL },
+    update: {
+      displayName: TOM_DISPLAY_NAME,
+    },
+    create: {
+      email: TOM_EMAIL,
+      displayName: TOM_DISPLAY_NAME,
+      passwordHash: hashPassword(TOM_PASSWORD),
+    },
+    select: {
+      id: true,
+      email: true,
+    },
+  })
+}
 
 async function getMasterRef() {
   const response = await fetch(withAuth(apiBase))
@@ -156,7 +185,7 @@ function resolveArtistIdsForRecord(recordDoc, artistMaps) {
   return []
 }
 
-async function importRecords(records, artistMaps) {
+async function importRecords(records, artistMaps, tomUser) {
   let importedCount = 0
   const skipped = []
   let playedDatesWritten = 0
@@ -238,15 +267,45 @@ async function importRecords(records, artistMaps) {
       })
     }
 
-    await prisma.playedDate.deleteMany({ where: { recordId: record.id } })
-
-    if (playedDates.length > 0) {
-      await prisma.playedDate.createMany({
-        data: playedDates.map((date) => ({
+    if (playedDates.length > 0 && tomUser) {
+      const existingItem = await prisma.collectionItem.findFirst({
+        where: {
+          userId: tomUser.id,
           recordId: record.id,
+        },
+        orderBy: {
+          createdAt: 'asc',
+        },
+        select: {
+          id: true,
+        },
+      })
+
+      const collectionItem =
+        existingItem ??
+        (await prisma.collectionItem.create({
+          data: {
+            userId: tomUser.id,
+            recordId: record.id,
+          },
+          select: {
+            id: true,
+          },
+        }))
+
+      await prisma.collectionItemPlayedDate.deleteMany({
+        where: {
+          collectionItemId: collectionItem.id,
+        },
+      })
+
+      await prisma.collectionItemPlayedDate.createMany({
+        data: playedDates.map((date) => ({
+          collectionItemId: collectionItem.id,
           date,
         })),
       })
+
       playedDatesWritten += playedDates.length
     }
 
@@ -292,7 +351,8 @@ async function main() {
   )
 
   const artistMaps = await importArtists(artists)
-  const recordResult = await importRecords(records, artistMaps)
+  const tomUser = dryRun ? null : await ensureTomUser()
+  const recordResult = await importRecords(records, artistMaps, tomUser)
 
   const report = {
     repository,

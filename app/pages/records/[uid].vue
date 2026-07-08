@@ -1,35 +1,61 @@
 <script setup lang="ts">
-import { asDate, asImageSrc, isFilled } from '@prismicio/client'
+import type { RecordItem } from '~~/shared/types/catalog'
 
 const route = useRoute()
-const { client } = usePrismic()
-const { data: page } = await useAsyncData(
+const { data: page } = await useAsyncData<RecordItem>(
   `[record-uid-${route.params.uid}]`,
-  () => client.getByUID('record', route.params.uid as string)
+  () => $fetch(`/api/records/${route.params.uid as string}`)
 )
 
 const marked = ref(false)
 
+const noteParagraphs = computed(() => {
+  const notes = page.value?.data.notes
+  if (!notes) return []
+  return notes
+    .split(/\n\n+/)
+    .map((chunk) => chunk.trim())
+    .filter(Boolean)
+})
+
 useSeoMeta({
-  title: page.value?.data.meta_title,
-  ogTitle: page.value?.data.meta_title,
-  description: page.value?.data.meta_description,
-  ogDescription: page.value?.data.meta_description,
-  ogImage: computed(() => asImageSrc(page.value?.data.meta_image)),
+  title: computed(() => page.value?.data.title),
+  ogTitle: computed(() => page.value?.data.title),
+  description: computed(() => page.value?.data.notes ?? undefined),
+  ogDescription: computed(() => page.value?.data.notes ?? undefined),
+  ogImage: computed(() => page.value?.data.cover?.url),
 })
 
 async function addDate() {
   if (!page.value) return
   marked.value = true
 
-  const data = await $fetch('/api/updateRecord', {
-    method: 'POST',
-    body: JSON.stringify({
-      page: page.value,
-    }),
-  })
+  try {
+    const data = await $fetch(`/api/records/${page.value.uid}/played`, {
+      method: 'POST',
+    })
 
-  console.log('Response from server:', data)
+    page.value = data
+
+    console.log('Response from server:', data)
+  } catch (error: unknown) {
+    marked.value = false
+
+    const statusCode =
+      typeof error === 'object' &&
+      error !== null &&
+      'statusCode' in error &&
+      typeof (error as { statusCode?: unknown }).statusCode === 'number'
+        ? (error as { statusCode: number }).statusCode
+        : null
+
+    if (statusCode === 401) {
+      await navigateTo(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
+      return
+    }
+
+    throw error
+  }
 }
 </script>
 
@@ -37,22 +63,24 @@ async function addDate() {
   <main v-if="page" class="page record">
     <div class="content">
       <div class="cover-wrapper">
-        <PrismicImage
+        <NuxtImg
+          v-if="page.data.cover?.url"
           class="cover"
-          :field="page.data.cover"
-          :widths="[300, 600]"
+          :src="page.data.cover.url"
+          :alt="page.data.cover.alt || ''"
           width="300"
-          :imgix-params="{ cs: 'srgb' }"
+          loading="lazy"
         />
       </div>
       <h1 class="record-title">{{ page.data.title }}</h1>
-      <h2 class="artist-link">
+      <h2 class="artist-link" v-if="page.data.artists.length > 0">
         <NuxtLink
-          v-if="$prismic.isFilled.contentRelationship(page.data.artist)"
-          :to="`/artists/${page.data.artist.uid}`"
+          v-for="artist in page.data.artists"
+          :key="artist.id"
+          :to="`/artists/${artist.uid}`"
           class="artist-link-link"
         >
-          {{ page.data.artist.data?.name }}
+          {{ artist.data?.name }}
           <LucideChevronRight class="chevron-right" />
         </NuxtLink>
       </h2>
@@ -76,9 +104,9 @@ async function addDate() {
       <div class="detail" v-if="page.data.played?.length">
         <div v-if="page.data.played[page.data.played.length - 1]?.date">
           {{
-            asDate(
-              page.data.played[page.data.played.length - 1]?.date
-            )?.toLocaleDateString(undefined, {
+            new Date(
+              page.data.played[page.data.played.length - 1]?.date as string
+            ).toLocaleDateString(undefined, {
               dateStyle: 'long',
             })
           }}
@@ -94,11 +122,11 @@ async function addDate() {
         {{ marked ? '✔' : '+' }} Played today
       </button>
 
-      <h3 class="detail-heading" v-if="isFilled.richText(page.data.notes)">
-        Notes
-      </h3>
-      <div class="detail" v-if="isFilled.richText(page.data.notes)">
-        <PrismicRichText :field="page.data.notes" />
+      <h3 class="detail-heading" v-if="page.data.notes">Notes</h3>
+      <div class="detail" v-if="page.data.notes">
+        <p v-for="(paragraph, idx) in noteParagraphs" :key="idx">
+          {{ paragraph }}
+        </p>
       </div>
 
       <hr class="closer" />

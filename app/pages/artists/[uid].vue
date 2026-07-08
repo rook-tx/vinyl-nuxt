@@ -1,26 +1,25 @@
 <script setup lang="ts">
-import { asImageSrc, isFilled } from '@prismicio/client'
-import type { RecordListData } from '~/components/RecordList.vue'
+import type { RecordLink, ArtistItem } from '~~/shared/types/catalog'
 const route = useRoute()
-const { client } = usePrismic()
-const { data: page } = await useAsyncData(
+const { data: page } = await useAsyncData<ArtistItem>(
   `[artist-uid-${route.params.uid}]`,
-  () => client.getByUID('artist', route.params.uid as string)
+  () => $fetch(`/api/artists/${route.params.uid as string}`)
 )
 
 useSeoMeta({
-  title: page.value?.data.meta_title,
-  ogTitle: page.value?.data.meta_title,
-  description: page.value?.data.meta_description,
-  ogDescription: page.value?.data.meta_description,
-  ogImage: computed(() => asImageSrc(page.value?.data.meta_image)),
+  title: computed(() => page.value?.data.name),
+  ogTitle: computed(() => page.value?.data.name),
+  description: computed(() =>
+    page.value ? `Records by ${page.value.data.name}` : undefined
+  ),
+  ogDescription: computed(() =>
+    page.value ? `Records by ${page.value.data.name}` : undefined
+  ),
 })
 
 const filteredRecords = computed(() => {
   if (!page.value) return []
-  return page.value.data.records
-    .filter((record) => isFilled.contentRelationship(record.record))
-    .map((record) => record.record as RecordListData)
+  return page.value.data.records.map((record) => record.record as RecordLink)
 })
 </script>
 

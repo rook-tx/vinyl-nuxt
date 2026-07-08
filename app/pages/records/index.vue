@@ -1,12 +1,9 @@
 <script setup lang="ts">
-const { client } = usePrismic()
-const { data: records } = await useAsyncData(`[record-index]`, () =>
-  client.getAllByType('record', {
-    orderings: {
-      field: 'my.record.title',
-      direction: 'asc',
-    },
-  })
+import type { RecordItem } from '~~/shared/types/catalog'
+
+const { data: records } = await useAsyncData<RecordItem[]>(
+  `[record-index]`,
+  () => $fetch('/api/records')
 )
 </script>
 
@@ -47,15 +44,15 @@ const { data: records } = await useAsyncData(`[record-index]`, () =>
     align-items center
     gap gut(1)
   }
-  
+
   .title-badge {
     display flex
-    align-items bottom 
+    align-items bottom
     justify-content space-between
     gap gut(1)
     padding-right gut(1)
   }
-  
+
   .title-count {
     display flex
     align-items center

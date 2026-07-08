@@ -1,6 +1,12 @@
 <script setup lang="ts">
+definePageMeta({
+  middleware: 'auth-gate',
+})
+
 type RecordData = {
   title?: string
+  artist_names?: string
+  cover_url?: string
   record_id?: string
   year?: number
   original_year?: number
@@ -11,6 +17,7 @@ type RecordData = {
 
 const submitted = ref(false)
 const errorMessage = ref('')
+const route = useRoute()
 
 function addRecord(payload: SubmitEvent) {
   const form = payload.target as HTMLFormElement
@@ -30,6 +37,11 @@ function addRecord(payload: SubmitEvent) {
 
   const data = {
     title: getString('title'),
+    artist_names: (getString('artist_names') || '')
+      .split(',')
+      .map((name) => name.trim())
+      .filter(Boolean),
+    cover_url: getString('cover_url'),
     record_id: getString('record_id'),
     year: getNumber('year'),
     original_year: getNumber('original_year'),
@@ -50,6 +62,20 @@ function addRecord(payload: SubmitEvent) {
     })
     .catch((error) => {
       console.error('Error adding record:', error)
+
+      const statusCode =
+        typeof error === 'object' &&
+        error !== null &&
+        'statusCode' in error &&
+        typeof (error as { statusCode?: unknown }).statusCode === 'number'
+          ? (error as { statusCode: number }).statusCode
+          : null
+
+      if (statusCode === 401) {
+        navigateTo(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
+        return
+      }
+
       errorMessage.value = 'Failed to add record. Please try again.'
     })
 
@@ -72,6 +98,28 @@ function addRecord(payload: SubmitEvent) {
             required
           />
           <label for="title" class="label">Album Title</label>
+        </div>
+
+        <div class="form-detail">
+          <input
+            type="text"
+            name="artist_names"
+            placeholder="Artist 1, Artist 2"
+            class="input record-artist"
+          />
+          <label for="artist_names" class="label"
+            >Artists (comma-separated)</label
+          >
+        </div>
+
+        <div class="form-detail">
+          <input
+            type="url"
+            name="cover_url"
+            placeholder="https://..."
+            class="input record-cover-url"
+          />
+          <label for="cover_url" class="label">Cover URL</label>
         </div>
 
         <div class="form-detail">

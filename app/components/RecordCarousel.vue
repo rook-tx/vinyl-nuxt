@@ -4,22 +4,22 @@ import 'keen-slider/keen-slider.min.css'
 
 import { shuffleArray } from '~/utils/records'
 
-import type { RecordDocument } from '~~/prismicio-types'
+import type { RecordItem } from '~~/shared/types/catalog'
 
 const props = defineProps({
   records: {
-    type: Array as () => RecordDocument<string>[],
+    type: Array as () => RecordItem[],
     required: true,
   },
 })
 
-const recordList = ref<RecordDocument<string>[]>([...props.records])
+const recordList = ref<RecordItem[]>([...props.records])
 
 const [container, slider] = useKeenSlider({
   loop: true,
 })
 
-const updateRecordList = (records: RecordDocument<string>[]) => {
+const updateRecordList = (records: RecordItem[]) => {
   recordList.value = shuffleArray(records)
   nextTick(() => {
     slider.value?.update()
@@ -55,12 +55,13 @@ function goNext() {
         class="carousel-item keen-slider__slide"
       >
         <NuxtLink :to="`/records/${record.uid}`">
-          <PrismicImage
-            :field="record.data.cover"
-            :widths="[512, 1024]"
+          <NuxtImg
+            v-if="record.data.cover?.url"
+            :src="record.data.cover.url"
+            :alt="record.data.cover.alt || ''"
             width="512"
             height="512"
-            :imgix-params="{ cs: 'srgb' }"
+            loading="lazy"
           />
         </NuxtLink>
       </div>

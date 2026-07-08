@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { ArtistDocument } from '~~/prismicio-types'
+import type { ArtistItem } from '~~/shared/types/catalog'
 
 export type ArtistListData = {
-  uid: ArtistDocument['uid']
+  uid: ArtistItem['uid']
   data: {
-    name: ArtistDocument['data']['name']
+    name: ArtistItem['data']['name']
   }
 }
 

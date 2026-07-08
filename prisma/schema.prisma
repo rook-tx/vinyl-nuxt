@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Artist {
+  id              String   @id @default(cuid())
+  uid             String   @unique
+  name            String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  records RecordArtist[]
+
+  @@index([name])
+}
+
+model Record {
+  id              String   @id @default(cuid())
+  uid             String   @unique
+  title           String
+  coverUrl        String?
+  coverAlt        String?
+  recordId        String?
+  year            Int?
+  originalYear    Int?
+  discs           Int      @default(1)
+  label           String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  artists RecordArtist[]
+  collectionItems CollectionItem[]
+
+  @@index([title])
+}
+
+model User {
+  id           String           @id @default(cuid())
+  email        String           @unique
+  passwordHash String
+  displayName  String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  collectionItems CollectionItem[]
+}
+
+model RecordArtist {
+  recordId  String
+  artistId  String
+  createdAt DateTime @default(now())
+
+  record Record @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@id([recordId, artistId])
+  @@index([artistId])
+}
+
+model CollectionItem {
+  id            String   @id @default(cuid())
+  userId        String
+  recordId      String
+  personalNotes String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  record Record @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  played CollectionItemPlayedDate[]
+
+  @@index([userId, createdAt])
+  @@index([userId, recordId])
+}
+
+model CollectionItemPlayedDate {
+  id        String   @id @default(cuid())
+  collectionItemId String
+  date      DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  collectionItem CollectionItem @relation(fields: [collectionItemId], references: [id], onDelete: Cascade)
+
+  @@index([collectionItemId])
+  @@index([date])
+}
